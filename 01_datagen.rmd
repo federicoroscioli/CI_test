@@ -24,7 +24,7 @@ The code also verifies the final distributions and correlations.
 
 ```{r setup, message=FALSE, warning=FALSE}
 set.seed(1234)
-n <- 200
+n <- 27
 rho <- -0.10
 ```
 
@@ -38,7 +38,7 @@ To create a few outliers, two randomly chosen observations are multiplied by lar
 income <- rlnorm(n, meanlog = 10, sdlog = 0.45)
 
 # Add a few outliers
-outlier_id <- sample(1:n, 15)
+outlier_id <- sample(1:n, 5)
 income[outlier_id] <- income[outlier_id] * c(2.8, 3.5)
 
 summary(income)
@@ -57,8 +57,8 @@ education <- 8 + 0.00035 * income + rnorm(n, mean = 0, sd = 1.2)
 education <- pmax(education, 1)
 
 # change few observations to reduce correlation with income
-randompick <- sample(1:n, 50)
-education[randompick] <- education[randompick] + c(sample(-20:20, 50, replace = TRUE))
+randompick <- sample(1:n, 8)
+education[randompick] <- education[randompick] + c(sample(-20:20, 5, replace = TRUE))
 
 summary(education)
 ```

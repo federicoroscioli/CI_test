@@ -149,19 +149,19 @@ window.Quarto = {
 <p>We begin by loading the synthetic dataset and inspecting its structure through correlation analysis and summary statistics.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>                income  education environment
-income       1.0000000  0.7398230  -0.1000262
-education    0.7398230  1.0000000  -0.1146954
-environment -0.1000262 -0.1146954   1.0000000</code></pre>
+<pre><code>                income education environment
+income       1.0000000 0.8187393  -0.1001204
+education    0.8187393 1.0000000   0.0496869
+environment -0.1001204 0.0496869   1.0000000</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     income         education      environment   
- Min.   :  6093   Min.   :-5.68   Min.   :21.32  
- 1st Qu.: 16409   1st Qu.:13.32   1st Qu.:43.74  
- Median : 21431   Median :15.89   Median :49.52  
- Mean   : 27542   Mean   :17.90   Mean   :50.00  
- 3rd Qu.: 30683   3rd Qu.:20.61   3rd Qu.:56.97  
- Max.   :130465   Max.   :62.33   Max.   :75.71  </code></pre>
+ Min.   :  7665   Min.   :-3.67   Min.   :31.93  
+ 1st Qu.: 15322   1st Qu.:13.07   1st Qu.:43.74  
+ Median : 18065   Median :16.45   Median :48.97  
+ Mean   : 30912   Mean   :18.80   Mean   :50.00  
+ 3rd Qu.: 32205   3rd Qu.:25.73   3rd Qu.:54.57  
+ Max.   :118721   Max.   :48.96   Max.   :73.77  </code></pre>
 </div>
 </div>
 <p>The histograms below show the raw distribution of each indicator before any transformation is applied.</p>
@@ -244,20 +244,20 @@ environment -0.1000262 -0.1146954   1.0000000</code></pre>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                income  education environment
-income       1.0000000  0.7398230  -0.1000262
-education    0.7398230  1.0000000  -0.1146954
-environment -0.1000262 -0.1146954   1.0000000</code></pre>
+<pre><code>                income education environment
+income       1.0000000 0.8187393  -0.1001204
+education    0.8187393 1.0000000   0.0496869
+environment -0.1001204 0.0496869   1.0000000</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     income         education       environment   
- Min.   : 62.60   Min.   : 50.97   Min.   :38.90  
- 1st Qu.: 67.58   1st Qu.: 67.73   1st Qu.:63.63  
- Median : 70.00   Median : 70.00   Median :70.00  
- Mean   : 72.95   Mean   : 71.77   Mean   :70.54  
- 3rd Qu.: 74.46   3rd Qu.: 74.16   3rd Qu.:78.23  
- Max.   :122.60   Max.   :110.97   Max.   :98.90  </code></pre>
+<pre><code>     income         education       environment    
+ Min.   : 64.38   Min.   : 47.06   Min.   : 45.56  
+ 1st Qu.: 68.52   1st Qu.: 66.15   1st Qu.: 62.51  
+ Median : 70.00   Median : 70.00   Median : 70.00  
+ Mean   : 76.94   Mean   : 72.68   Mean   : 71.48  
+ 3rd Qu.: 77.64   3rd Qu.: 80.57   3rd Qu.: 78.03  
+ Max.   :124.38   Max.   :107.06   Max.   :105.56  </code></pre>
 </div>
 </div>
 <p>The histograms below show the distribution of each indicator after normalization. All variables now share the same <span class="math inline">\([70, 130]\)</span> scale.</p>
@@ -284,7 +284,7 @@ environment -0.1000262 -0.1146954   1.0000000</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     income   education environment 
-  0.6845962   0.5131372   0.1999975 </code></pre>
+  0.8486576   0.5916558   0.2000079 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -292,7 +292,7 @@ CV after normalization:</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     income   education environment 
-  0.1246931   0.1129022   0.1563948 </code></pre>
+  0.1842118   0.1744735   0.2006366 </code></pre>
 </div>
 </div>
 <hr>
@@ -343,102 +343,27 @@ CV after normalization:</code></pre>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std<span class="sc">$</span>AMPI)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  53.21   67.22   70.27   70.68   73.51   94.58 </code></pre>
+  55.17   67.37   69.85   71.86   76.82   93.84 </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                income  education environment      AMPI
-income       1.0000000  0.7398230  -0.1000262 0.6688830
-education    0.7398230  1.0000000  -0.1146954 0.6817827
-environment -0.1000262 -0.1146954   1.0000000 0.5642505
-AMPI         0.6688830  0.6817827   0.5642505 1.0000000</code></pre>
+<pre><code>                income education environment      AMPI
+income       1.0000000 0.8187393  -0.1001204 0.6784532
+education    0.8187393 1.0000000   0.0496869 0.7853439
+environment -0.1001204 0.0496869   1.0000000 0.5745884
+AMPI         0.6784532 0.7853439   0.5745884 1.0000000</code></pre>
 </div>
 </div>
 <hr>
 </section>
 </section>
-<section id="comparison-method-min-max-normalization-geometric-mean-aggregation" class="level2">
-<h2 class="anchored" data-anchor-id="comparison-method-min-max-normalization-geometric-mean-aggregation">5. Comparison Method: Min-Max Normalization + Geometric Mean Aggregation</h2>
+<section id="comparison-method-geometric-mean-aggregation" class="level2">
+<h2 class="anchored" data-anchor-id="comparison-method-geometric-mean-aggregation">5. Comparison Method: Geometric Mean Aggregation</h2>
 <p>To benchmark the AMPI approach, we apply a standard <strong>min-max normalization</strong> followed by <strong>geometric mean aggregation</strong> — a common composite index methodology (e.g., used in the UNDP Human Development Index since 2010).</p>
-<hr>
-<section id="min-max-normalization" class="level3">
-<h3 class="anchored" data-anchor-id="min-max-normalization">5.1 Min-Max Normalization</h3>
-<section id="formula-2" class="level4">
-<h4 class="anchored" data-anchor-id="formula-2">Formula</h4>
-<p>For each indicator <span class="math inline">\(x\)</span>, the normalized score <span class="math inline">\(z\)</span> is:</p>
-<p><span class="math display">\[z_i = \frac{x_i - x_{\min}}{x_{\max} - x_{\min}}\]</span></p>
-<p>This rescales each indicator to the interval <span class="math inline">\([0, 1]\)</span>, where:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Symbol</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(x_i\)</span></td>
-<td>Raw value for country <span class="math inline">\(i\)</span></td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(x_{\max}\)</span></td>
-<td>Maximum observed value (best performer = 1)</td>
-</tr>
-<tr class="odd">
-<td><span class="math inline">\(x_{\min}\)</span></td>
-<td>Minimum observed value (worst performer = 0)</td>
-</tr>
-</tbody>
-</table>
-<p>Unlike the AMPI normalization, there is <strong>no central goalpost</strong> — the reference points are purely the observed extremes, with no anchor at the mean.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>minmax_norm <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  (x <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">max</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>dat_mm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">apply</span>(data, <span class="dv">2</span>, minmax_norm))</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     income          education       environment    
- Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
- 1st Qu.:0.08295   1st Qu.:0.2793   1st Qu.:0.4123  
- Median :0.12332   Median :0.3172   Median :0.5184  
- Mean   :0.17246   Mean   :0.3467   Mean   :0.5273  
- 3rd Qu.:0.19771   3rd Qu.:0.3866   3rd Qu.:0.6555  
- Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                income  education environment
-income       1.0000000  0.7398230  -0.1000262
-education    0.7398230  1.0000000  -0.1146954
-environment -0.1000262 -0.1146954   1.0000000</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>dat_mm_long <span class="ot">&lt;-</span> reshape2<span class="sc">::</span><span class="fu">melt</span>(dat_mm)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_mm_long, <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">fill =</span> variable)) <span class="sc">+</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">position =</span> <span class="st">"identity"</span>, <span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Overlapping Histograms (Min-Max Normalized)"</span>,</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="02_AMPI_files/figure-html/plot-minmax-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<hr>
-</section>
-</section>
 <section id="aggregation-geometric-mean" class="level3">
 <h3 class="anchored" data-anchor-id="aggregation-geometric-mean">5.2 Aggregation: Geometric Mean</h3>
-<section id="formula-3" class="level4">
-<h4 class="anchored" data-anchor-id="formula-3">Formula</h4>
+<section id="formula-2" class="level4">
+<h4 class="anchored" data-anchor-id="formula-2">Formula</h4>
 <p>The geometric mean aggregates the <span class="math inline">\(k\)</span> normalized indicators for each country <span class="math inline">\(i\)</span> as:</p>
 <p><span class="math display">\[GM_i = \left(\prod_{j=1}^{k} z_{ij}\right)^{1/k} = \sqrt[k]{z_{i1} \cdot z_{i2} \cdot \ldots \cdot z_{ik}}\]</span></p>
 </section>
@@ -449,24 +374,28 @@ environment -0.1000262 -0.1146954   1.0000000</code></pre>
 <p>⚠️ <strong>Note:</strong> Because min-max scores can equal exactly <strong>0</strong>, and <span class="math inline">\(\log(0)\)</span> is undefined, a small constant <span class="math inline">\(\varepsilon\)</span> is added before taking the geometric mean to avoid undefined results: <span class="math display">\[GM_i = \left(\prod_{j=1}^{k} (z_{ij} + \varepsilon)\right)^{1/k}\]</span></p>
 </blockquote>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>epsilon <span class="ot">&lt;-</span> <span class="fl">1e-6</span>  <span class="co"># small constant to avoid log(0)</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>dat_mm<span class="sc">$</span>GM <span class="ot">&lt;-</span> <span class="fu">apply</span>(dat_mm, <span class="dv">1</span>, <span class="cf">function</span>(x) {</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">mean</span>(<span class="fu">log</span>(x <span class="sc">+</span> epsilon)))</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_mm<span class="sc">$</span>GM)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>epsilon <span class="ot">&lt;-</span> <span class="fl">1e-6</span>  <span class="co"># small constant to avoid log(0)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>dat_std<span class="sc">$</span>GM <span class="ot">&lt;-</span> <span class="fu">apply</span>(dat_std[,<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">mean</span>(<span class="fu">log</span>(x <span class="sc">+</span> epsilon)))</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>dat_std<span class="sc">$</span>AM <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(dat_std[,<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)])</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std<span class="sc">$</span>GM)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-0.002692 0.220517 0.267028 0.288851 0.342560 0.784202 </code></pre>
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  56.58   67.82   69.94   73.04   78.33   94.74 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                income  education environment        GM
-income       1.0000000  0.7398230  -0.1000262 0.8698351
-education    0.7398230  1.0000000  -0.1146954 0.8009396
-environment -0.1000262 -0.1146954   1.0000000 0.2102695
-GM           0.8698351  0.8009396   0.2102695 1.0000000</code></pre>
+<pre><code>                income education environment      AMPI        GM        AM
+income       1.0000000 0.8187393  -0.1001204 0.6784532 0.7598139 0.7981747
+education    0.8187393 1.0000000   0.0496869 0.7853439 0.8410141 0.8630016
+environment -0.1001204 0.0496869   1.0000000 0.5745884 0.5145245 0.4678586
+AMPI         0.6784532 0.7853439   0.5745884 1.0000000 0.9837991 0.9602629
+GM           0.7598139 0.8410141   0.5145245 0.9837991 1.0000000 0.9947079
+AM           0.7981747 0.8630016   0.4678586 0.9602629 0.9947079 1.0000000</code></pre>
 </div>
 </div>
 <hr>
@@ -480,9 +409,10 @@ GM           0.8698351  0.8009396   0.2102695 1.0000000</code></pre>
 <p>A high correlation between AMPI and GM would suggest the two methods rank countries similarly despite their different normalization and aggregation choices.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>          AMPI        GM
-AMPI 1.0000000 0.9026758
-GM   0.9026758 1.0000000</code></pre>
+<pre><code>          AMPI        GM        AM
+AMPI 1.0000000 0.9837991 0.9602629
+GM   0.9837991 1.0000000 0.9947079
+AM   0.9602629 0.9947079 1.0000000</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -497,13 +427,17 @@ GM   0.9026758 1.0000000</code></pre>
 <h3 class="anchored" data-anchor-id="regression-r2-comparison-table">6.2 Regression <span class="math inline">\(R^2\)</span> Comparison Table</h3>
 <p>We compare how strongly each indicator predicts the composite index under each method:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>modX1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>modX2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>modX3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>modGM_X1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> income,      <span class="at">data =</span> dat_mm)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>modGM_X2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> education,   <span class="at">data =</span> dat_mm)</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>modGM_X3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> environment, <span class="at">data =</span> dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>modX1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>modX2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>modX3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>modGM_X1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>modGM_X2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>modGM_X3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>modAM_X1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AM <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>modAM_X2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AM <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>modAM_X3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AM <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
@@ -514,23 +448,27 @@ GM   0.9026758 1.0000000</code></pre>
 <th style="text-align: left;">Indicator</th>
 <th style="text-align: right;">AMPI <span class="math inline">\(R^2\)</span></th>
 <th style="text-align: right;">GM <span class="math inline">\(R^2\)</span></th>
+<th style="text-align: right;">AM <span class="math inline">\(R^2\)</span></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Income</td>
-<td style="text-align: right;">0.447</td>
-<td style="text-align: right;">0.757</td>
+<td style="text-align: right;">0.460</td>
+<td style="text-align: right;">0.577</td>
+<td style="text-align: right;">0.637</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Education</td>
-<td style="text-align: right;">0.465</td>
-<td style="text-align: right;">0.642</td>
+<td style="text-align: right;">0.617</td>
+<td style="text-align: right;">0.707</td>
+<td style="text-align: right;">0.745</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Environment</td>
-<td style="text-align: right;">0.318</td>
-<td style="text-align: right;">0.044</td>
+<td style="text-align: right;">0.330</td>
+<td style="text-align: right;">0.265</td>
+<td style="text-align: right;">0.219</td>
 </tr>
 </tbody>
 </table>
@@ -623,164 +561,164 @@ GM   0.9026758 1.0000000</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">99</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">197</td>
-<td style="text-align: right;">134</td>
-<td style="text-align: right;">36</td>
+<td style="text-align: left;">11</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">17</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">68</td>
-<td style="text-align: right;">34</td>
-<td style="text-align: right;">34</td>
-<td style="text-align: right;">191</td>
-<td style="text-align: right;">170</td>
-<td style="text-align: right;">76</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">3</td>
-<td style="text-align: right;">39</td>
-<td style="text-align: right;">61</td>
-<td style="text-align: right;">186</td>
-<td style="text-align: right;">167</td>
-<td style="text-align: right;">87</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">20</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">37</td>
-<td style="text-align: right;">197</td>
-<td style="text-align: right;">181</td>
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">109</td>
-<td style="text-align: right;">189</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">161</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">153</td>
-<td style="text-align: right;">176</td>
-<td style="text-align: right;">154</td>
-<td style="text-align: right;">75</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">135</td>
-<td style="text-align: right;">193</td>
-<td style="text-align: right;">170</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">89</td>
-<td style="text-align: right;">167</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">24</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">20</td>
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">177</td>
-<td style="text-align: right;">167</td>
-<td style="text-align: right;">124</td>
-<td style="text-align: right;">47</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">96</td>
-<td style="text-align: right;">74</td>
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">193</td>
-<td style="text-align: right;">181</td>
-<td style="text-align: right;">109</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">143</td>
-<td style="text-align: right;">56</td>
-<td style="text-align: right;">15</td>
-<td style="text-align: right;">187</td>
-<td style="text-align: right;">145</td>
-<td style="text-align: right;">73</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">77</td>
-<td style="text-align: right;">189</td>
-<td style="text-align: right;">161</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">67</td>
-<td style="text-align: right;">138</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">138</td>
-<td style="text-align: right;">195</td>
-<td style="text-align: right;">183</td>
-<td style="text-align: right;">22</td>
-<td style="text-align: right;">118</td>
-<td style="text-align: right;">185</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">128</td>
-<td style="text-align: right;">191</td>
-<td style="text-align: right;">154</td>
-<td style="text-align: right;">30</td>
-<td style="text-align: right;">98</td>
-<td style="text-align: right;">163</td>
+<td style="text-align: left;">21</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">66</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">38</td>
-<td style="text-align: right;">180</td>
-<td style="text-align: right;">101</td>
-<td style="text-align: right;">38</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">24</td>
-<td style="text-align: right;">68</td>
-<td style="text-align: right;">85</td>
-<td style="text-align: right;">179</td>
-<td style="text-align: right;">168</td>
-<td style="text-align: right;">106</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">117</td>
-<td style="text-align: right;">186</td>
+<td style="text-align: left;">23</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">19</td>
 <td style="text-align: right;">16</td>
-<td style="text-align: right;">76</td>
-<td style="text-align: right;">50</td>
-<td style="text-align: right;">112</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">18</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">165</td>
-<td style="text-align: right;">72</td>
-<td style="text-align: right;">76</td>
-<td style="text-align: right;">183</td>
-<td style="text-align: right;">176</td>
-<td style="text-align: right;">115</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">12</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">15</td>
-<td style="text-align: right;">43</td>
-<td style="text-align: right;">78</td>
-<td style="text-align: right;">166</td>
-<td style="text-align: right;">128</td>
-<td style="text-align: right;">69</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">26</td>
-<td style="text-align: right;">190</td>
-<td style="text-align: right;">173</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">103</td>
-<td style="text-align: right;">162</td>
+<td style="text-align: left;">10</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">22</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">56</td>
-<td style="text-align: right;">60</td>
-<td style="text-align: right;">72</td>
-<td style="text-align: right;">174</td>
-<td style="text-align: right;">151</td>
-<td style="text-align: right;">93</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">90</td>
-<td style="text-align: right;">184</td>
-<td style="text-align: right;">174</td>
+<td style="text-align: left;">18</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">23</td>
 <td style="text-align: right;">15</td>
-<td style="text-align: right;">92</td>
-<td style="text-align: right;">150</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">21</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">19</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">24</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">25</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">6</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">8</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
 </tr>
 </tbody>
 </table>
