@@ -1,0 +1,335 @@
+---
+title: "AMPI: Normalization and Aggregation"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(ggplot2)
+library(reshape2)
+```
+
+## 1. Data Loading and Exploration
+
+We begin by loading the synthetic dataset and inspecting its structure through correlation analysis and summary statistics.
+
+```{r load-data, echo=FALSE}
+data <- read.csv("synthetic_data.csv")
+
+cor(data)
+summary(data)
+```
+
+The histograms below show the raw distribution of each indicator before any transformation is applied.
+
+```{r, fig.height=4, fig.width=12, echo=FALSE}
+par(mfrow=c(1,3))
+hist(data$income, main="Income", xlab="Income", col="lightblue", border="white")
+hist(data$education, main="Education", xlab="Education", col="lightgreen", border="white")
+hist(data$environment, main="Environment", xlab="Environment", col="lightcoral", border="white")
+```
+
+### 1.1 Scope of the Analysis
+The dataset includes three indicators — **income**, **education**, and **environment** — measured for a set of countries. The goal is to construct a composite index that aggregates these dimensions into a single score reflecting overall performance. The index must be positive (i.e. multidimensional development) and we assume that all 3 indicators are measured in a way that higher values indicate better performance (e.g., higher income, better education outcomes, cleaner environment).
+
+---
+
+## 2. Normalization: Constrained Min-Max (AMPI Method)
+
+### 2.1 Rationale
+
+Raw indicators are measured on different scales and units, making direct comparison or aggregation meaningless. We therefore normalize each indicator onto a common scale before aggregating.
+
+### 2.2 Goalpost and Range
+
+The normalization uses a **constrained min-max** approach where:
+
+- The **goalpost** (reference point) is the **cross-country median** of each indicator — i.e., all countries aim at reaching the median European value.
+- The normalized score is bounded between **70** (worst performer) and **130** (best performer), yielding a symmetric range of ±30 around the central value of 100.
+
+### Formula
+
+For each indicator $x$, the normalized score $z$ is:
+
+$$z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}$$
+
+Where:
+
+| Symbol | Meaning |
+|---|---|
+| $x_i$ | Raw value for country $i$ |
+| $\tilde{x}$ | Median of the indicator across all countries |
+| $x_{\max}$ | Maximum observed value |
+| $x_{\min}$ | Minimum observed value |
+| $70$ | Floor score (worst performer) |
+| $130$ | Ceiling score (best performer) |
+
+The multiplier $60$ reflects the total range $[70, 130]$, so that deviations from the median are rescaled proportionally within that interval.
+
+```{r normalize}
+AMPI_norm <- function(x) {
+  70 + (60 * ((x - median(x, na.rm = TRUE)) /
+    (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))))
+}
+
+dat_std <- as.data.frame(apply(data, 2, AMPI_norm))
+
+cor(dat_std)
+summary(dat_std)
+```
+
+The histograms below show the distribution of each indicator after normalization. All variables now share the same $[70, 130]$ scale.
+
+```{r plot-normalized, echo=FALSE}
+dat_long_std <- reshape2::melt(dat_std)
+ggplot(dat_long_std, aes(x = value, fill = variable)) +
+  geom_histogram(alpha = 0.4, position = "identity", bins = 30) +
+  labs(title = "Overlapping Histograms (Normalized Data)",
+       x = "Value", y = "Count") +
+  theme_minimal()
+```
+
+---
+
+## 3. Coefficient of Variation: Before and After Normalization
+
+The **Coefficient of Variation (CV)** measures relative dispersion as the ratio of the standard deviation to the mean:
+
+$$CV = \frac{\sigma}{\bar{x}}$$
+
+Comparing CVs before and after normalization helps verify that the transformation preserves the relative variability structure across indicators.
+
+```{r cv-comparison, echo=FALSE}
+cat("CV before normalization:\n")
+sapply(data, function(x) sd(x, na.rm = TRUE) / 
+    mean(x, na.rm = TRUE))
+
+cat("\nCV after normalization:\n")
+sapply(dat_std, function(x) sd(x, na.rm = TRUE) / 
+    mean(x, na.rm = TRUE))
+```
+
+---
+
+## 4. Aggregation: The AMPI Index
+
+### Formula
+
+The **AMPI (Adjusted Mean Performance Index)** aggregates the normalized indicators for each country using:
+
+$$\text{AMPI}_i = \bar{z}_i - \sigma_i \cdot CV_i$$
+
+Where all quantities are computed **row-wise** (i.e., across indicators for each country $i$):
+
+| Symbol | Meaning |
+|---|---|
+| $\bar{z}_i$ | Mean of normalized scores across indicators |
+| $\sigma_i$ | Standard deviation of normalized scores across indicators |
+| $CV_i$ | Coefficient of variation of normalized scores across indicators |
+
+### Interpretation
+
+The additive correction term $\sigma_i \cdot CV_i$ **rewards countries that perform consistently well** across all indicators. A country with high average scores *and* low relative dispersion will receive a smaller penalty than one with an equivalent mean but highly uneven performance across dimensions.
+
+```{r aggregation}
+dat_std$AMPI <- rowMeans(dat_std) -
+  (apply(dat_std, 1, sd) *
+     apply(dat_std, 1, function(x) sd(x, na.rm = TRUE) / 
+     mean(x, na.rm = TRUE)))
+
+summary(dat_std$AMPI)
+cor(dat_std)
+```
+
+
+---
+
+## 5. Comparison Method: Min-Max Normalization + Geometric Mean Aggregation
+
+To benchmark the AMPI approach, we apply a standard **min-max normalization** followed by **geometric mean aggregation** — a common composite index methodology (e.g., used in the UNDP Human Development Index since 2010).
+
+---
+
+### 5.1 Min-Max Normalization
+
+#### Formula
+
+For each indicator $x$, the normalized score $z$ is:
+
+$$z_i = \frac{x_i - x_{\min}}{x_{\max} - x_{\min}}$$
+
+This rescales each indicator to the interval $[0, 1]$, where:
+
+| Symbol | Meaning |
+|---|---|
+| $x_i$ | Raw value for country $i$ |
+| $x_{\max}$ | Maximum observed value (best performer = 1) |
+| $x_{\min}$ | Minimum observed value (worst performer = 0) |
+
+Unlike the AMPI normalization, there is **no central goalpost** — the reference points are purely the observed extremes, with no anchor at the mean.
+
+```{r minmax-normalization}
+minmax_norm <- function(x) {
+  (x - min(x, na.rm = TRUE)) / 
+    (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+
+dat_mm <- as.data.frame(apply(data, 2, minmax_norm))
+
+summary(dat_mm)
+cor(dat_mm)
+```
+
+```{r plot-minmax}
+dat_mm_long <- reshape2::melt(dat_mm)
+ggplot(dat_mm_long, aes(x = value, fill = variable)) +
+  geom_histogram(alpha = 0.4, position = "identity", bins = 30) +
+  labs(title = "Overlapping Histograms (Min-Max Normalized)",
+       x = "Value", y = "Count") +
+  theme_minimal()
+```
+
+---
+
+### 5.2 Aggregation: Geometric Mean
+
+#### Formula
+
+The geometric mean aggregates the $k$ normalized indicators for each country $i$ as:
+
+$$GM_i = \left(\prod_{j=1}^{k} z_{ij}\right)^{1/k} = \sqrt[k]{z_{i1} \cdot z_{i2} \cdot \ldots \cdot z_{ik}}$$
+
+#### Why the Geometric Mean?
+
+Compared to an arithmetic mean, the geometric mean **penalizes imbalance** across dimensions: a country with a very low score on any single indicator cannot fully compensate by excelling in others. This property — called **imperfect substitutability** — is often desirable in multidimensional welfare indices.
+
+> ⚠️ **Note:** Because min-max scores can equal exactly **0**, and $\log(0)$ is undefined, a small constant $\varepsilon$ is added before taking the geometric mean to avoid undefined results:
+> $$GM_i = \left(\prod_{j=1}^{k} (z_{ij} + \varepsilon)\right)^{1/k}$$
+
+```{r geometric-mean-aggregation}
+epsilon <- 1e-6  # small constant to avoid log(0)
+
+dat_mm$GM <- apply(dat_mm, 1, function(x) {
+  exp(mean(log(x + epsilon)))
+})
+
+summary(dat_mm$GM)
+cor(dat_mm)
+```
+
+---
+
+## 6. Head-to-Head Comparison: AMPI vs. Geometric Mean
+
+### 6.1 Correlation Between the Two Indices
+
+A high correlation between AMPI and GM would suggest the two methods rank countries similarly despite their different normalization and aggregation choices.
+
+```{r index-correlation, echo=FALSE}
+comparison <- data.frame(
+  AMPI = dat_std$AMPI,
+  GM   = dat_mm$GM
+)
+
+cor(comparison)
+
+ggplot(comparison, aes(x = AMPI, y = GM)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue") +
+  labs(title = "AMPI vs. Geometric Mean Index",
+       x = "AMPI Score", y = "Geometric Mean Score") +
+  theme_minimal()
+```
+
+### 6.2 Regression $R^2$ Comparison Table
+
+We compare how strongly each indicator predicts the composite index under each method:
+```{r regressions-gm, echo=FALSE}
+```{r regressions}
+modX1 <- lm(AMPI ~ income,      data = dat_std)
+modX2 <- lm(AMPI ~ education,   data = dat_std)
+modX3 <- lm(AMPI ~ environment, data = dat_std)
+
+modGM_X1 <- lm(GM ~ income,      data = dat_mm)
+modGM_X2 <- lm(GM ~ education,   data = dat_mm)
+modGM_X3 <- lm(GM ~ environment, data = dat_mm)
+
+```
+
+```{r r2-comparison-table, echo=FALSE}
+r2 <- function(model) summary(model)$r.squared
+
+r2_table <- data.frame(
+  Indicator = c("Income", "Education", "Environment"),
+  AMPI_R2   = round(c(r2(modX1), r2(modX2), r2(modX3)), 3),
+  GM_R2     = round(c(r2(modGM_X1), r2(modGM_X2), r2(modGM_X3)), 3)
+)
+
+knitr::kable(r2_table,
+             col.names = c("Indicator", "AMPI $R^2$", "GM $R^2$"),
+             caption = "Comparison of indicator-level $R^2$ values across aggregation methods")
+```
+
+### 6.3 Summary Comparison Table
+
+```{r summary-table, echo=FALSE}
+knitr::kable(
+  data.frame(
+    Feature             = c("Normalization range", "Central goalpost",
+                            "Aggregation method", "Penalizes imbalance",
+                            "Sensitive to outliers", "Undefined for zero values"),
+    AMPI                = c("[70, 130]", "Mean", 
+                            "Arithmetic mean + SD × CV", "Yes (via CV term)",
+                            "Moderate", "No"),
+    Geometric_Mean      = c("[0, 1]", "None (observed extremes)",
+                            "Geometric mean", "Yes (multiplicative)",
+                            "High", "Yes (requires ε adjustment)")
+  ),
+  col.names = c("Feature", "AMPI", "Min-Max + Geometric Mean"),
+  caption   = "Methodological comparison of the two composite index approaches"
+)
+```
+
+---
+
+## 8. Correspondence Table: Raw Indicators, AMPI and Geometric Mean Rankings
+
+We build a unified ranking table that displays, for each country, both the raw indicator values and the rank assigned by each composite index. This allows a direct visual audit of how normalization and aggregation choices affect country standings.
+
+```{r ranking-table, echo=FALSE}
+# Assemble raw indicators + both indices into one dataframe
+ranking_df <- data.frame(
+  Country     = rownames(data),  # adjust if your country identifier is a column
+  Income      = data$income,
+  Education   = data$education,
+  Environment = data$environment,
+  AMPI        = dat_std$AMPI,
+  GM          = dat_mm$GM
+)
+
+# Compute rankings (rank 1 = best performer)
+ranking_df$Rank_Income      <- rank(-ranking_df$Income,      ties.method = "min")
+ranking_df$Rank_Education   <- rank(-ranking_df$Education,   ties.method = "min")
+ranking_df$Rank_Environment <- rank(-ranking_df$Environment, ties.method = "min")
+ranking_df$Rank_AMPI        <- rank(-ranking_df$AMPI,        ties.method = "min")
+ranking_df$Rank_GM          <- rank(-ranking_df$GM,          ties.method = "min")
+
+```
+
+### 8.1 Rank Disagreement Between AMPI and Geometric Mean
+
+Countries where the two methods disagree most reveal the **sensitivity of rankings to methodological choices**. A large rank gap signals that a country's position is not robust — it depends heavily on how normalization and aggregation are specified.
+
+```{r rank-disagreement, echo=FALSE}
+ranking_df$Rank_Gap <- abs(ranking_df$Rank_AMPI - ranking_df$Rank_GM)
+
+disagreement <- ranking_df[order(-ranking_df$Rank_Gap),c(1,7:11)]
+
+knitr::kable(
+  head(disagreement,20),
+  row.names = FALSE,
+  caption   = "Top 20Countries ranked by disagreement between AMPI and Geometric Mean index"
+)
+```

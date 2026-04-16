@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Your Name">
+<meta name="dcterms.date" content="2026-04-16">
+
+<title>AMPI: Normalization and Aggregation</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="02_AMPI_files/libs/clipboard/clipboard.min.js"></script>
+<script src="02_AMPI_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="02_AMPI_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="02_AMPI_files/libs/quarto-html/popper.min.js"></script>
+<script src="02_AMPI_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="02_AMPI_files/libs/quarto-html/anchor.min.js"></script>
+<link href="02_AMPI_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="02_AMPI_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="02_AMPI_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="02_AMPI_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="02_AMPI_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">AMPI: Normalization and Aggregation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Your Name </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 16, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="data-loading-and-exploration" class="level2">
+<h2 class="anchored" data-anchor-id="data-loading-and-exploration">1. Data Loading and Exploration</h2>
+<p>We begin by loading the synthetic dataset and inspecting its structure through correlation analysis and summary statistics.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                income  education environment
+income       1.0000000  0.7398230  -0.1000262
+education    0.7398230  1.0000000  -0.1146954
+environment -0.1000262 -0.1146954   1.0000000</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     income         education      environment   
+ Min.   :  6093   Min.   :-5.68   Min.   :21.32  
+ 1st Qu.: 16409   1st Qu.:13.32   1st Qu.:43.74  
+ Median : 21431   Median :15.89   Median :49.52  
+ Mean   : 27542   Mean   :17.90   Mean   :50.00  
+ 3rd Qu.: 30683   3rd Qu.:20.61   3rd Qu.:56.97  
+ Max.   :130465   Max.   :62.33   Max.   :75.71  </code></pre>
+</div>
+</div>
+<p>The histograms below show the raw distribution of each indicator before any transformation is applied.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_AMPI_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="scope-of-the-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="scope-of-the-analysis">1.1 Scope of the Analysis</h3>
+<p>The dataset includes three indicators — <strong>income</strong>, <strong>education</strong>, and <strong>environment</strong> — measured for a set of countries. The goal is to construct a composite index that aggregates these dimensions into a single score reflecting overall performance. The index must be positive (i.e.&nbsp;multidimensional development) and we assume that all 3 indicators are measured in a way that higher values indicate better performance (e.g., higher income, better education outcomes, cleaner environment).</p>
+<hr>
+</section>
+</section>
+<section id="normalization-constrained-min-max-ampi-method" class="level2">
+<h2 class="anchored" data-anchor-id="normalization-constrained-min-max-ampi-method">2. Normalization: Constrained Min-Max (AMPI Method)</h2>
+<section id="rationale" class="level3">
+<h3 class="anchored" data-anchor-id="rationale">2.1 Rationale</h3>
+<p>Raw indicators are measured on different scales and units, making direct comparison or aggregation meaningless. We therefore normalize each indicator onto a common scale before aggregating.</p>
+</section>
+<section id="goalpost-and-range" class="level3">
+<h3 class="anchored" data-anchor-id="goalpost-and-range">2.2 Goalpost and Range</h3>
+<p>The normalization uses a <strong>constrained min-max</strong> approach where:</p>
+<ul>
+<li>The <strong>goalpost</strong> (reference point) is the <strong>cross-country median</strong> of each indicator — i.e., all countries aim at reaching the median European value.</li>
+<li>The normalized score is bounded between <strong>70</strong> (worst performer) and <strong>130</strong> (best performer), yielding a symmetric range of ±30 around the central value of 100.</li>
+</ul>
+</section>
+<section id="formula" class="level3">
+<h3 class="anchored" data-anchor-id="formula">Formula</h3>
+<p>For each indicator <span class="math inline">\(x\)</span>, the normalized score <span class="math inline">\(z\)</span> is:</p>
+<p><span class="math display">\[z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}\]</span></p>
+<p>Where:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(x_i\)</span></td>
+<td>Raw value for country <span class="math inline">\(i\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\tilde{x}\)</span></td>
+<td>Median of the indicator across all countries</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(x_{\max}\)</span></td>
+<td>Maximum observed value</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(x_{\min}\)</span></td>
+<td>Minimum observed value</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(70\)</span></td>
+<td>Floor score (worst performer)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(130\)</span></td>
+<td>Ceiling score (best performer)</td>
+</tr>
+</tbody>
+</table>
+<p>The multiplier <span class="math inline">\(60\)</span> reflects the total range <span class="math inline">\([70, 130]\)</span>, so that deviations from the median are rescaled proportionally within that interval.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>AMPI_norm <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">70</span> <span class="sc">+</span> (<span class="dv">60</span> <span class="sc">*</span> ((x <span class="sc">-</span> <span class="fu">median</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">max</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>dat_std <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">apply</span>(data, <span class="dv">2</span>, AMPI_norm))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                income  education environment
+income       1.0000000  0.7398230  -0.1000262
+education    0.7398230  1.0000000  -0.1146954
+environment -0.1000262 -0.1146954   1.0000000</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     income         education       environment   
+ Min.   : 62.60   Min.   : 50.97   Min.   :38.90  
+ 1st Qu.: 67.58   1st Qu.: 67.73   1st Qu.:63.63  
+ Median : 70.00   Median : 70.00   Median :70.00  
+ Mean   : 72.95   Mean   : 71.77   Mean   :70.54  
+ 3rd Qu.: 74.46   3rd Qu.: 74.16   3rd Qu.:78.23  
+ Max.   :122.60   Max.   :110.97   Max.   :98.90  </code></pre>
+</div>
+</div>
+<p>The histograms below show the distribution of each indicator after normalization. All variables now share the same <span class="math inline">\([70, 130]\)</span> scale.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_AMPI_files/figure-html/plot-normalized-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="coefficient-of-variation-before-and-after-normalization" class="level2">
+<h2 class="anchored" data-anchor-id="coefficient-of-variation-before-and-after-normalization">3. Coefficient of Variation: Before and After Normalization</h2>
+<p>The <strong>Coefficient of Variation (CV)</strong> measures relative dispersion as the ratio of the standard deviation to the mean:</p>
+<p><span class="math display">\[CV = \frac{\sigma}{\bar{x}}\]</span></p>
+<p>Comparing CVs before and after normalization helps verify that the transformation preserves the relative variability structure across indicators.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>CV before normalization:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     income   education environment 
+  0.6845962   0.5131372   0.1999975 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+CV after normalization:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     income   education environment 
+  0.1246931   0.1129022   0.1563948 </code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="aggregation-the-ampi-index" class="level2">
+<h2 class="anchored" data-anchor-id="aggregation-the-ampi-index">4. Aggregation: The AMPI Index</h2>
+<section id="formula-1" class="level3">
+<h3 class="anchored" data-anchor-id="formula-1">Formula</h3>
+<p>The <strong>AMPI (Adjusted Mean Performance Index)</strong> aggregates the normalized indicators for each country using:</p>
+<p><span class="math display">\[\text{AMPI}_i = \bar{z}_i - \sigma_i \cdot CV_i\]</span></p>
+<p>Where all quantities are computed <strong>row-wise</strong> (i.e., across indicators for each country <span class="math inline">\(i\)</span>):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\bar{z}_i\)</span></td>
+<td>Mean of normalized scores across indicators</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma_i\)</span></td>
+<td>Standard deviation of normalized scores across indicators</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(CV_i\)</span></td>
+<td>Coefficient of variation of normalized scores across indicators</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
+<p>The additive correction term <span class="math inline">\(\sigma_i \cdot CV_i\)</span> <strong>rewards countries that perform consistently well</strong> across all indicators. A country with high average scores <em>and</em> low relative dispersion will receive a smaller penalty than one with an equivalent mean but highly uneven performance across dimensions.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dat_std<span class="sc">$</span>AMPI <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(dat_std) <span class="sc">-</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">apply</span>(dat_std, <span class="dv">1</span>, sd) <span class="sc">*</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">apply</span>(dat_std, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std<span class="sc">$</span>AMPI)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  53.21   67.22   70.27   70.68   73.51   94.58 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                income  education environment      AMPI
+income       1.0000000  0.7398230  -0.1000262 0.6688830
+education    0.7398230  1.0000000  -0.1146954 0.6817827
+environment -0.1000262 -0.1146954   1.0000000 0.5642505
+AMPI         0.6688830  0.6817827   0.5642505 1.0000000</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="comparison-method-min-max-normalization-geometric-mean-aggregation" class="level2">
+<h2 class="anchored" data-anchor-id="comparison-method-min-max-normalization-geometric-mean-aggregation">5. Comparison Method: Min-Max Normalization + Geometric Mean Aggregation</h2>
+<p>To benchmark the AMPI approach, we apply a standard <strong>min-max normalization</strong> followed by <strong>geometric mean aggregation</strong> — a common composite index methodology (e.g., used in the UNDP Human Development Index since 2010).</p>
+<hr>
+<section id="min-max-normalization" class="level3">
+<h3 class="anchored" data-anchor-id="min-max-normalization">5.1 Min-Max Normalization</h3>
+<section id="formula-2" class="level4">
+<h4 class="anchored" data-anchor-id="formula-2">Formula</h4>
+<p>For each indicator <span class="math inline">\(x\)</span>, the normalized score <span class="math inline">\(z\)</span> is:</p>
+<p><span class="math display">\[z_i = \frac{x_i - x_{\min}}{x_{\max} - x_{\min}}\]</span></p>
+<p>This rescales each indicator to the interval <span class="math inline">\([0, 1]\)</span>, where:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(x_i\)</span></td>
+<td>Raw value for country <span class="math inline">\(i\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(x_{\max}\)</span></td>
+<td>Maximum observed value (best performer = 1)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(x_{\min}\)</span></td>
+<td>Minimum observed value (worst performer = 0)</td>
+</tr>
+</tbody>
+</table>
+<p>Unlike the AMPI normalization, there is <strong>no central goalpost</strong> — the reference points are purely the observed extremes, with no anchor at the mean.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>minmax_norm <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  (x <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">max</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>dat_mm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">apply</span>(data, <span class="dv">2</span>, minmax_norm))</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     income          education       environment    
+ Min.   :0.00000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.08295   1st Qu.:0.2793   1st Qu.:0.4123  
+ Median :0.12332   Median :0.3172   Median :0.5184  
+ Mean   :0.17246   Mean   :0.3467   Mean   :0.5273  
+ 3rd Qu.:0.19771   3rd Qu.:0.3866   3rd Qu.:0.6555  
+ Max.   :1.00000   Max.   :1.0000   Max.   :1.0000  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                income  education environment
+income       1.0000000  0.7398230  -0.1000262
+education    0.7398230  1.0000000  -0.1146954
+environment -0.1000262 -0.1146954   1.0000000</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>dat_mm_long <span class="ot">&lt;-</span> reshape2<span class="sc">::</span><span class="fu">melt</span>(dat_mm)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_mm_long, <span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">fill =</span> variable)) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">position =</span> <span class="st">"identity"</span>, <span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Overlapping Histograms (Min-Max Normalized)"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_AMPI_files/figure-html/plot-minmax-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="aggregation-geometric-mean" class="level3">
+<h3 class="anchored" data-anchor-id="aggregation-geometric-mean">5.2 Aggregation: Geometric Mean</h3>
+<section id="formula-3" class="level4">
+<h4 class="anchored" data-anchor-id="formula-3">Formula</h4>
+<p>The geometric mean aggregates the <span class="math inline">\(k\)</span> normalized indicators for each country <span class="math inline">\(i\)</span> as:</p>
+<p><span class="math display">\[GM_i = \left(\prod_{j=1}^{k} z_{ij}\right)^{1/k} = \sqrt[k]{z_{i1} \cdot z_{i2} \cdot \ldots \cdot z_{ik}}\]</span></p>
+</section>
+<section id="why-the-geometric-mean" class="level4">
+<h4 class="anchored" data-anchor-id="why-the-geometric-mean">Why the Geometric Mean?</h4>
+<p>Compared to an arithmetic mean, the geometric mean <strong>penalizes imbalance</strong> across dimensions: a country with a very low score on any single indicator cannot fully compensate by excelling in others. This property — called <strong>imperfect substitutability</strong> — is often desirable in multidimensional welfare indices.</p>
+<blockquote class="blockquote">
+<p>⚠️ <strong>Note:</strong> Because min-max scores can equal exactly <strong>0</strong>, and <span class="math inline">\(\log(0)\)</span> is undefined, a small constant <span class="math inline">\(\varepsilon\)</span> is added before taking the geometric mean to avoid undefined results: <span class="math display">\[GM_i = \left(\prod_{j=1}^{k} (z_{ij} + \varepsilon)\right)^{1/k}\]</span></p>
+</blockquote>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>epsilon <span class="ot">&lt;-</span> <span class="fl">1e-6</span>  <span class="co"># small constant to avoid log(0)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>dat_mm<span class="sc">$</span>GM <span class="ot">&lt;-</span> <span class="fu">apply</span>(dat_mm, <span class="dv">1</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">mean</span>(<span class="fu">log</span>(x <span class="sc">+</span> epsilon)))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_mm<span class="sc">$</span>GM)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.002692 0.220517 0.267028 0.288851 0.342560 0.784202 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                income  education environment        GM
+income       1.0000000  0.7398230  -0.1000262 0.8698351
+education    0.7398230  1.0000000  -0.1146954 0.8009396
+environment -0.1000262 -0.1146954   1.0000000 0.2102695
+GM           0.8698351  0.8009396   0.2102695 1.0000000</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+</section>
+<section id="head-to-head-comparison-ampi-vs.-geometric-mean" class="level2">
+<h2 class="anchored" data-anchor-id="head-to-head-comparison-ampi-vs.-geometric-mean">6. Head-to-Head Comparison: AMPI vs.&nbsp;Geometric Mean</h2>
+<section id="correlation-between-the-two-indices" class="level3">
+<h3 class="anchored" data-anchor-id="correlation-between-the-two-indices">6.1 Correlation Between the Two Indices</h3>
+<p>A high correlation between AMPI and GM would suggest the two methods rank countries similarly despite their different normalization and aggregation choices.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>          AMPI        GM
+AMPI 1.0000000 0.9026758
+GM   0.9026758 1.0000000</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_AMPI_files/figure-html/index-correlation-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="regression-r2-comparison-table" class="level3">
+<h3 class="anchored" data-anchor-id="regression-r2-comparison-table">6.2 Regression <span class="math inline">\(R^2\)</span> Comparison Table</h3>
+<p>We compare how strongly each indicator predicts the composite index under each method:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>modX1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>modX2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>modX3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>modGM_X1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> income,      <span class="at">data =</span> dat_mm)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>modGM_X2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> education,   <span class="at">data =</span> dat_mm)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>modGM_X3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> environment, <span class="at">data =</span> dat_mm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Comparison of indicator-level <span class="math inline">\(R^2\)</span> values across aggregation methods</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Indicator</th>
+<th style="text-align: right;">AMPI <span class="math inline">\(R^2\)</span></th>
+<th style="text-align: right;">GM <span class="math inline">\(R^2\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Income</td>
+<td style="text-align: right;">0.447</td>
+<td style="text-align: right;">0.757</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Education</td>
+<td style="text-align: right;">0.465</td>
+<td style="text-align: right;">0.642</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Environment</td>
+<td style="text-align: right;">0.318</td>
+<td style="text-align: right;">0.044</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="summary-comparison-table" class="level3">
+<h3 class="anchored" data-anchor-id="summary-comparison-table">6.3 Summary Comparison Table</h3>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Methodological comparison of the two composite index approaches</caption>
+<colgroup>
+<col style="width: 32%">
+<col style="width: 32%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">AMPI</th>
+<th style="text-align: left;">Min-Max + Geometric Mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Normalization range</td>
+<td style="text-align: left;">[70, 130]</td>
+<td style="text-align: left;">[0, 1]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Central goalpost</td>
+<td style="text-align: left;">Mean</td>
+<td style="text-align: left;">None (observed extremes)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Aggregation method</td>
+<td style="text-align: left;">Arithmetic mean + SD × CV</td>
+<td style="text-align: left;">Geometric mean</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Penalizes imbalance</td>
+<td style="text-align: left;">Yes (via CV term)</td>
+<td style="text-align: left;">Yes (multiplicative)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sensitive to outliers</td>
+<td style="text-align: left;">Moderate</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Undefined for zero values</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes (requires ε adjustment)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="correspondence-table-raw-indicators-ampi-and-geometric-mean-rankings" class="level2">
+<h2 class="anchored" data-anchor-id="correspondence-table-raw-indicators-ampi-and-geometric-mean-rankings">8. Correspondence Table: Raw Indicators, AMPI and Geometric Mean Rankings</h2>
+<p>We build a unified ranking table that displays, for each country, both the raw indicator values and the rank assigned by each composite index. This allows a direct visual audit of how normalization and aggregation choices affect country standings.</p>
+<section id="rank-disagreement-between-ampi-and-geometric-mean" class="level3">
+<h3 class="anchored" data-anchor-id="rank-disagreement-between-ampi-and-geometric-mean">8.1 Rank Disagreement Between AMPI and Geometric Mean</h3>
+<p>Countries where the two methods disagree most reveal the <strong>sensitivity of rankings to methodological choices</strong>. A large rank gap signals that a country’s position is not robust — it depends heavily on how normalization and aggregation are specified.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Top 20Countries ranked by disagreement between AMPI and Geometric Mean index</caption>
+<colgroup>
+<col style="width: 11%">
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 24%">
+<col style="width: 14%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Country</th>
+<th style="text-align: right;">Rank_Income</th>
+<th style="text-align: right;">Rank_Education</th>
+<th style="text-align: right;">Rank_Environment</th>
+<th style="text-align: right;">Rank_AMPI</th>
+<th style="text-align: right;">Rank_GM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">99</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">197</td>
+<td style="text-align: right;">134</td>
+<td style="text-align: right;">36</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">68</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">191</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">76</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">186</td>
+<td style="text-align: right;">167</td>
+<td style="text-align: right;">87</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">37</td>
+<td style="text-align: right;">197</td>
+<td style="text-align: right;">181</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">189</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">161</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">176</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: right;">75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">135</td>
+<td style="text-align: right;">193</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">89</td>
+<td style="text-align: right;">167</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">20</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">177</td>
+<td style="text-align: right;">167</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">96</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">193</td>
+<td style="text-align: right;">181</td>
+<td style="text-align: right;">109</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">143</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">187</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: right;">73</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">77</td>
+<td style="text-align: right;">189</td>
+<td style="text-align: right;">161</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">138</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">138</td>
+<td style="text-align: right;">195</td>
+<td style="text-align: right;">183</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">118</td>
+<td style="text-align: right;">185</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">128</td>
+<td style="text-align: right;">191</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">163</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">66</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">180</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">38</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">24</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">85</td>
+<td style="text-align: right;">179</td>
+<td style="text-align: right;">168</td>
+<td style="text-align: right;">106</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">117</td>
+<td style="text-align: right;">186</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">76</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">112</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">165</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: right;">76</td>
+<td style="text-align: right;">183</td>
+<td style="text-align: right;">176</td>
+<td style="text-align: right;">115</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">15</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">166</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">69</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">26</td>
+<td style="text-align: right;">190</td>
+<td style="text-align: right;">173</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">103</td>
+<td style="text-align: right;">162</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">56</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">151</td>
+<td style="text-align: right;">93</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">90</td>
+<td style="text-align: right;">184</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">92</td>
+<td style="text-align: right;">150</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
