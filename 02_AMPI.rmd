@@ -36,115 +36,159 @@ The dataset includes three indicators — **income**, **education**, and **envir
 
 ---
 
-## 2. Normalization: Constrained Min-Max (AMPI Method)
+## 2. Normalization Comparison
 
 ### 2.1 Rationale
 
 Raw indicators are measured on different scales and units, making direct comparison or aggregation meaningless. We therefore normalize each indicator onto a common scale before aggregating.
 
-### 2.2 Goalpost and Range
-
-The normalization uses a **constrained min-max** approach where:
-
-- The **goalpost** (reference point) is the **cross-country median** of each indicator — i.e., all countries aim at reaching the median European value.
-- The normalized score is bounded between **70** (worst performer) and **130** (best performer), yielding a symmetric range of ±30 around the central value of 100.
-
-### Formula
-
-For each indicator $x$, the normalized score $z$ is:
-
-$$z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}$$
+### 2.2 Standardization
+A common approach is **z-score standardization**, which transforms each variable to have a mean of 0 and a standard deviation of 1:
+$$z_i = \frac{x_i - \bar{x}}{\sigma}$$
 
 Where:
 
-| Symbol | Meaning |
-|---|---|
-| $x_i$ | Raw value for country $i$ |
-| $\tilde{x}$ | Median of the indicator across all countries |
-| $x_{\max}$ | Maximum observed value |
-| $x_{\min}$ | Minimum observed value |
-| $70$ | Floor score (worst performer) |
-| $130$ | Ceiling score (best performer) |
+- $x_i$ is the raw value for country $i$
+- $\bar{x}$ is the mean of the indicator across all countries
+- $\sigma$ is the standard deviation of the indicator across all countries
+This method centers the data around zero and rescales it based on variability, but it does not set a fixed range or reference point for interpretation.
+
+```{r std, echo=FALSE}
+dat_std <- as.data.frame(scale(data))
+
+```
+
+### 2.3 Min-Max Normalization
+Another common method is **min-max normalization**, which rescales the data to a fixed range, typically [0, 1]:
+$$z_i = \frac{x_i - x_{\min}}{x_{\max} - x_{\min}}$$
+Where:
+- $x_i$ is the raw value for country $i$
+- $x_{\min}$ is the minimum observed value of the indicator across all countries
+- $x_{\max}$ is the maximum observed value of the indicator across all countries
+This method preserves the relative position of each country within the observed range but can be sensitive to outliers and does not set a meaningful reference point for performance.
+
+```{r minmax, echo=FALSE}
+minmax <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+dat_mm <- as.data.frame(apply(data, 2, minmax))
+
+```
+
+### 2.4 AMPI Normalization: Constrained Min-Max with Goalpost
+The normalization uses a **constrained min-max** approach where:
+- The **goalpost** (reference point) is the **cross-country median** of each indicator — i.e., all countries aim at reaching the median European value.
+- The normalized score is bounded between **70** (worst performer) and **130** (best performer), yielding a symmetric range of ±30 around the central value of 100.
+
+For each indicator $x$, the normalized score $z$ is:
+$$z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}$$
+
+Where:
+- $x_i$ | Raw value for country $i$ 
+- $\tilde{x}$ | Median of the indicator across all countries 
+- $x_{\max}$ | Maximum observed value 
+- $x_{\min}$ | Minimum observed value 
+- $70$ | Floor score (worst performer) 
+- $130$ | Ceiling score (best performer) 
 
 The multiplier $60$ reflects the total range $[70, 130]$, so that deviations from the median are rescaled proportionally within that interval.
 
-```{r normalize}
+```{r ampinorm, echo=FALSE}
 AMPI_norm <- function(x) {
   70 + (60 * ((x - median(x, na.rm = TRUE)) /
     (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))))
 }
 
-dat_std <- as.data.frame(apply(data, 2, AMPI_norm))
-
-cor(dat_std)
-summary(dat_std)
+dat_ampi <- as.data.frame(apply(data, 2, AMPI_norm))
 ```
 
-The histograms below show the distribution of each indicator after normalization. All variables now share the same $[70, 130]$ scale.
+### 2.5 Comparison of Normalization Methods
+Comparing the distributions of the normalized indicators under each method reveals how the choice of normalization affects the relative positioning of countries and the interpretability of scores. The AMPI normalization centers scores around 100 with a fixed range, while standardization centers around 0 without a fixed range, and min-max normalization rescales to [0, 1] based on observed extremes.
+
+Each method has different implications for how we interpret the scores and how sensitive they are to outliers or the distribution of the raw data. The AMPI method, by using a median goalpost and a fixed range, emphasizes relative performance against a central benchmark while allowing for a clear interpretation of scores as "above" or "below" the median. The standardization method emphasizes deviations from the mean in terms of standard deviations, while the min-max method emphasizes relative position within the observed range.
 
 ```{r plot-normalized, echo=FALSE}
-dat_long_std <- reshape2::melt(dat_std)
-ggplot(dat_long_std, aes(x = value, fill = variable)) +
-  geom_histogram(alpha = 0.4, position = "identity", bins = 30) +
-  labs(title = "Overlapping Histograms (Normalized Data)",
-       x = "Value", y = "Count") +
-  theme_minimal()
+# plot using facet in ggplot the overlapped histograms of the three normalized indicators for each methodology
+dat_std_melt <- melt(dat_std, variable.name = "Indicator", value.name = "Z_Score")
+dat_mm_melt <- melt(dat_mm, variable.name = "Indicator", value.name = "Z_Score")
+dat_ampi_melt <- melt(dat_ampi, variable.name = "Indicator", value.name = "Z_Score")
+dat_std_melt$Method <- "Standardization"
+dat_mm_melt$Method <- "Min-Max"
+dat_ampi_melt$Method <- "AMPI Normalization"
+dat_all <- rbind(dat_std_melt, dat_mm_melt, dat_ampi_melt)
+ggplot(dat_all, aes(x = Z_Score, fill = Indicator)) +
+  geom_histogram(alpha = 0.5, position = "identity", bins = 30) +
+  facet_wrap(~ Method, scales = "free") +
+  labs(title = "Comparison of Normalization Methods",
+       x = "Normalized Score", y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
 
----
-
-## 3. Coefficient of Variation: Before and After Normalization
-
 The **Coefficient of Variation (CV)** measures relative dispersion as the ratio of the standard deviation to the mean:
-
 $$CV = \frac{\sigma}{\bar{x}}$$
 
 Comparing CVs before and after normalization helps verify that the transformation preserves the relative variability structure across indicators.
 
 ```{r cv-comparison, echo=FALSE}
-cat("CV before normalization:\n")
-sapply(data, function(x) sd(x, na.rm = TRUE) / 
-    mean(x, na.rm = TRUE))
-
-cat("\nCV after normalization:\n")
-sapply(dat_std, function(x) sd(x, na.rm = TRUE) / 
-    mean(x, na.rm = TRUE))
+cv_raw <- apply(data, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_std <- apply(dat_std, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_mm <- apply(dat_mm, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_ampi <- apply(dat_ampi, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_comparison <- data.frame(
+  Indicator = names(cv_raw),
+  Raw_CV    = round(cv_raw, 3),
+  Std_CV    = round(cv_std, 3),
+  MM_CV     = round(cv_mm, 3),
+  AMPI_CV   = round(cv_ampi, 3)
+)
+knitr::kable(cv_comparison,
+             col.names = c("Indicator", "Raw CV", "Standardization CV", "Min-Max CV", "AMPI CV"),
+             caption = "Comparison of Coefficient of Variation across normalization methods")
 ```
 
 ---
 
-## 4. Aggregation: The AMPI Index
+## 3. Comparison of Aggregation Methods
 
-### Formula
+### 3.1 Rationale
+After normalization, we need to aggregate the multiple indicators into a single composite index. The choice of aggregation method affects how we interpret the overall score and how sensitive it is to imbalances across dimensions. In the following section we depart from deta normalized via **AMPI Constraied Min-Max** and apply two different aggregation methods.
 
-The **AMPI (Adjusted Mean Performance Index)** aggregates the normalized indicators for each country using:
+### 3.2 Additive Aggregation
+The **additive aggregation** method computes the composite index as a weighted sum of the normalized indicators:
+$$I_i = \sum_{j=1}^{k} w_j z_{ij}$$
+Where:
+- $I_i$ is the composite index score for country $i$
+- $w_j$ is the weight assigned to indicator $j$ (often set to 1/k for equal weighting)
+- $z_{ij}$ is the normalized score of country $i$ on indicator $j$
+This method assumes **perfect substitutability** between indicators: a low score on one indicator can be fully compensated by a high score on another. It is straightforward and easy to interpret, but it may not capture the multidimensional nature of development if we want to penalize imbalances across dimensions.
 
-$$\text{AMPI}_i = \bar{z}_i - \sigma_i \cdot CV_i$$
+```{r sum, echo=FALSE}
+dat_final <- cbind(data, dat_ampi)
 
-Where all quantities are computed **row-wise** (i.e., across indicators for each country $i$):
+dat_final$Sum <- rowSums(dat_final[,c(4:6)])
 
-| Symbol | Meaning |
-|---|---|
-| $\bar{z}_i$ | Mean of normalized scores across indicators |
-| $\sigma_i$ | Standard deviation of normalized scores across indicators |
-| $CV_i$ | Coefficient of variation of normalized scores across indicators |
-
-### Interpretation
-
-The additive correction term $\sigma_i \cdot CV_i$ **rewards countries that perform consistently well** across all indicators. A country with high average scores *and* low relative dispersion will receive a smaller penalty than one with an equivalent mean but highly uneven performance across dimensions.
-
-```{r aggregation}
-dat_std$AMPI <- rowMeans(dat_std) -
-  (apply(dat_std, 1, sd) *
-     apply(dat_std, 1, function(x) sd(x, na.rm = TRUE) / 
-     mean(x, na.rm = TRUE)))
-
-summary(dat_std$AMPI)
-cor(dat_std)
 ```
 
+### 3.3 Power-Mean Aggregation
+The **power-mean aggregation** method generalizes the arithmetic mean by introducing a parameter $p$ that controls the degree of substitutability:
+$$I_i = \left(\frac{1}{k} \sum_{j=1}^{k} z_{ij}^p\right)^{1/p}$$
+Where:
+- $I_i$ is the composite index score for country $i$
+- $p$ is the power parameter that determines the aggregation behavior
+- $z_{ij}$ is the normalized score of country $i$ on indicator $j$
+When $p = 1$, this reduces to the arithmetic mean (perfect substitutability). When $p < 1$, it penalizes imbalance more strongly, and when $p > 1$, it allows for more compensation between indicators. The choice of $p$ reflects normative judgments about how we value balance across dimensions.
+```{r power-mean, echo=FALSE}
+# we loop to create a composite indicator aggregated via power mean for different values of p, we can then compare the results with the additive aggregation method
+# We compare the aritmetic mean, the geometric mean, the armonic mean
+p_mean <- function(x,p){
+  
+}
 
----
+
+
+```
+
 
 ## 5. Comparison Method: Geometric Mean Aggregation
 
