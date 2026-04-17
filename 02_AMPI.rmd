@@ -18,7 +18,7 @@ We begin by loading the synthetic dataset and inspecting its structure through c
 ```{r load-data, echo=FALSE}
 data <- read.csv("synthetic_data.csv")
 
-cor(data)
+cor(data[,1:3], use = "pairwise.complete.obs")
 summary(data)
 ```
 
@@ -54,7 +54,7 @@ Where:
 This method centers the data around zero and rescales it based on variability, but it does not set a fixed range or reference point for interpretation.
 
 ```{r std, echo=FALSE}
-dat_std <- as.data.frame(scale(data))
+dat_std <- as.data.frame(scale(data)+10)
 
 ```
 
@@ -144,7 +144,8 @@ cv_comparison <- data.frame(
 )
 knitr::kable(cv_comparison,
              col.names = c("Indicator", "Raw CV", "Standardization CV", "Min-Max CV", "AMPI CV"),
-             caption = "Comparison of Coefficient of Variation across normalization methods")
+             caption = "Comparison of Coefficient of Variation across normalization methods",
+             row.names = FALSE)
 ```
 
 ---
@@ -164,7 +165,8 @@ Where:
 This method assumes **perfect substitutability** between indicators: a low score on one indicator can be fully compensated by a high score on another. It is straightforward and easy to interpret, but it may not capture the multidimensional nature of development if we want to penalize imbalances across dimensions.
 
 ```{r sum, echo=FALSE}
-dat_final <- cbind(data, dat_ampi)
+# dat_final <- cbind(data, dat_ampi)
+dat_final <- cbind(data, dat_std)
 
 dat_final$Sum <- rowSums(dat_final[,c(4:6)])
 
@@ -177,168 +179,112 @@ Where:
 - $I_i$ is the composite index score for country $i$
 - $p$ is the power parameter that determines the aggregation behavior
 - $z_{ij}$ is the normalized score of country $i$ on indicator $j$
-When $p = 1$, this reduces to the arithmetic mean (perfect substitutability). When $p < 1$, it penalizes imbalance more strongly, and when $p > 1$, it allows for more compensation between indicators. The choice of $p$ reflects normative judgments about how we value balance across dimensions.
+When $p = 1$, this reduces to the arithmetic mean (perfect substitutability). When $p < 1$, it penalizes imbalance more strongly, and when $p > 1$, it allows for more compensation between indicators. The choice of $p$ reflects normative judgments about how we value balance across dimensions. When $p \to 0$, the power mean approaches the geometric mean, which is a common method for composite indices that penalizes imbalance.
+
 ```{r power-mean, echo=FALSE}
 # we loop to create a composite indicator aggregated via power mean for different values of p, we can then compare the results with the additive aggregation method
 # We compare the aritmetic mean, the geometric mean, the armonic mean
-p_mean <- function(x,p){
-  
+power_mean <- function(values, p) {
+  if (p == 0) {
+    # Geometric mean (limit of power mean as p → 0)
+    return(exp(mean(log(values))))
+  } else {
+    return(mean(values^p)^(1/p))
+  }
 }
-
-
-
+p_values <- c(-1, 0, 1)  # example values for p
+for (p in p_values) {
+  dat_final[[paste0("PowerMean_p", p)]] <- apply(dat_final[,c(4:6)], 1, function(x) power_mean(x, p))
+}
+names(dat_final)[8:10] <- c("Armonic_Mean","Geometric_Mean", "Arithmetic_Mean")
 ```
 
-
-## 5. Comparison Method: Geometric Mean Aggregation
-
-To benchmark the AMPI approach, we apply a standard **min-max normalization** followed by **geometric mean aggregation** — a common composite index methodology (e.g., used in the UNDP Human Development Index since 2010).
-
-
-### 5.2 Aggregation: Geometric Mean
-
-#### Formula
-
-The geometric mean aggregates the $k$ normalized indicators for each country $i$ as:
-
-$$GM_i = \left(\prod_{j=1}^{k} z_{ij}\right)^{1/k} = \sqrt[k]{z_{i1} \cdot z_{i2} \cdot \ldots \cdot z_{ik}}$$
-
-#### Why the Geometric Mean?
-
-Compared to an arithmetic mean, the geometric mean **penalizes imbalance** across dimensions: a country with a very low score on any single indicator cannot fully compensate by excelling in others. This property — called **imperfect substitutability** — is often desirable in multidimensional welfare indices.
-
-> ⚠️ **Note:** Because min-max scores can equal exactly **0**, and $\log(0)$ is undefined, a small constant $\varepsilon$ is added before taking the geometric mean to avoid undefined results:
-> $$GM_i = \left(\prod_{j=1}^{k} (z_{ij} + \varepsilon)\right)^{1/k}$$
-
-```{r geometric-mean-aggregation}
-epsilon <- 1e-6  # small constant to avoid log(0)
-
-dat_std$GM <- apply(dat_std[,c(1:3)], 1, function(x) {
-  exp(mean(log(x + epsilon)))
-})
-
-dat_std$AM <- rowMeans(dat_std[,c(1:3)])
-
-summary(dat_std$GM)
-cor(dat_std)
+### 3.4 AMPI Aggregation: Arithmetic Mean + Penalty
+The AMPI aggregation method combines the arithmetic mean of the normalized indicators with a penalty term based on the coefficient of variation (CV) time the standard deviation (σ) to account for imbalance across dimensions:
+$$I_i = \bar{z}_i - CV_i*\sigma$$
+This method rewards countries that perform well on average across all indicators while penalizing those with high variability (imbalance) across dimensions. The CV term captures the relative dispersion of a country's performance across indicators, and the σ term scales the penalty based on overall variability in the dataset.
+```{r ampi-aggregation, echo=FALSE}
+dat_final$AMPI <- rowMeans(dat_final[,c(4:6)]) - (apply(dat_final[,c(4:6)], 1, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)) * apply(dat_final[,c(4:6)], 1, sd, na.rm = TRUE))
 ```
 
----
+### 3.5 Minimum aggregation
+The **minimum aggregation** method computes the composite index as the minimum of the normalized indicators:
+$$I_i = \min_{j=1}^{k} z_{ij}$$
+Where:
+- $I_i$ is the composite index score for country $i$
+- $z_{ij}$ is the normalized score of country $i$ on indicator $j$
+This method assumes **no substitutability** between indicators: a low score on any one indicator determines the overall score. It emphasizes the importance of balanced performance across all dimensions, but it can be overly sensitive to outliers and may not reflect overall performance if one indicator is an extreme outlier.
+```{r min-aggregation, echo=FALSE}
+dat_final$Min <- apply(dat_final[,c(4:6)], 1, min, na.rm = TRUE)
+```
 
-## 6. Head-to-Head Comparison: AMPI vs. Geometric Mean
+## 4. Head-to-Head Comparison of the different Composite Indices
 
-### 6.1 Correlation Between the Two Indices
-
-A high correlation between AMPI and GM would suggest the two methods rank countries similarly despite their different normalization and aggregation choices.
+### 4.1 Correlation analysis
+The correlation matrix below shows the pairwise correlations between the AMPI, the geometric mean, the armonic mean, the arithmetic mean and the summation and minimum indices. A high correlation indicates that the two methods yield similar rankings of countries, while a low correlation suggests that they capture different aspects of performance.
 
 ```{r index-correlation, echo=FALSE}
-comparison <- data.frame(
-  AMPI = dat_std$AMPI,
-  GM   = dat_std$GM,
-  AM   = dat_std$AM
-)
-
-cor(comparison)
-
-ggplot(comparison, aes(x = AMPI, y = GM)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = TRUE, color = "steelblue") +
-  labs(title = "AMPI vs. Geometric Mean Index",
-       x = "AMPI Score", y = "Geometric Mean Score") +
-  theme_minimal()
+index_correlation <- cor(dat_final[,c("Sum","Arithmetic_Mean",  "Geometric_Mean", "Armonic_Mean","AMPI",  "Min")], use = "pairwise.complete.obs")
+knitr::kable(round(index_correlation, 3),
+             caption = "Correlation matrix of composite indices")
 ```
 
-### 6.2 Regression $R^2$ Comparison Table
 
-We compare how strongly each indicator predicts the composite index under each method:
-```{r regressions-gm, echo=FALSE}
-```{r regressions}
-modX1 <- lm(AMPI ~ income,      data = dat_std)
-modX2 <- lm(AMPI ~ education,   data = dat_std)
-modX3 <- lm(AMPI ~ environment, data = dat_std)
+### 6.2 Regression $Adjusted R^2$ Comparison Table
 
-modGM_X1 <- lm(GM ~ income,      data = dat_std)
-modGM_X2 <- lm(GM ~ education,   data = dat_std)
-modGM_X3 <- lm(GM ~ environment, data = dat_std)
+We compare how strongly each indicator predicts the composite index under each method using simple linear regressions. The $Adjusted R^2$ values indicate the proportion of variance in the composite index explained by each indicator, allowing us to assess which indicators are most influential under each aggregation method.
+```{r regressions, echo=FALSE}
+modX1 <- lm(AMPI ~ income.1, data = dat_final)
+modX2 <- lm(AMPI ~ education.1, data = dat_final)
+modX3 <- lm(AMPI ~ environment.1, data = dat_final)
+modGM_X1 <- lm(Geometric_Mean ~ income.1, data = dat_final)
+modGM_X2 <- lm(Geometric_Mean ~ education.1, data = dat_final)
+modGM_X3 <- lm(Geometric_Mean ~ environment.1, data = dat_final)
+modAM_X1 <- lm(Arithmetic_Mean ~ income.1, data = dat_final)
+modAM_X2 <- lm(Arithmetic_Mean ~ education.1, data = dat_final)
+modAM_X3 <- lm(Arithmetic_Mean ~ environment.1, data = dat_final)
+modMin_X1 <- lm(Min ~ income.1, data = dat_final)
+modMin_X2 <- lm(Min ~ education.1, data = dat_final)
+modMin_X3 <- lm(Min ~ environment.1, data = dat_final)
+modSum_X1 <- lm(Sum ~ income.1, data = dat_final)
+modSum_X2 <- lm(Sum ~ education.1, data = dat_final)
+modSum_X3 <- lm(Sum ~ environment.1, data = dat_final)
+modArmonic_X1 <- lm(Armonic_Mean ~ income.1, data = dat_final)
+modArmonic_X2 <- lm(Armonic_Mean ~ education.1, data = dat_final)
+modArmonic_X3 <- lm(Armonic_Mean ~ environment.1, data = dat_final)
 
-modAM_X1 <- lm(AM ~ income,      data = dat_std)
-modAM_X2 <- lm(AM ~ education,   data = dat_std)
-modAM_X3 <- lm(AM ~ environment, data = dat_std)
-```
+# estract the adjusted R^2 values and create a comparison table
+ar2 <- function(model) summary(model)$adj.r.squared
 
-```{r r2-comparison-table, echo=FALSE}
-r2 <- function(model) summary(model)$r.squared
-
-r2_table <- data.frame(
+ar2_table <- data.frame(
   Indicator = c("Income", "Education", "Environment"),
-  AMPI_R2   = round(c(r2(modX1), r2(modX2), r2(modX3)), 3),
-  GM_R2     = round(c(r2(modGM_X1), r2(modGM_X2), r2(modGM_X3)), 3),
-  AM_R2     = round(c(r2(modAM_X1), r2(modAM_X2), r2(modAM_X3)), 3)
+  Sum_Adj_R2    = round(c(ar2(modSum_X1), ar2(modSum_X2), ar2(modSum_X3)), 3),
+  AM_Adj_R2     = round(c(ar2(modAM_X1), ar2(modAM_X2), ar2(modAM_X3)), 3),
+  GM_Adj_R2     = round(c(ar2(modGM_X1), ar2(modGM_X2), ar2(modGM_X3)), 3),
+  Armonic_Adj_R2= round(c(ar2(modArmonic_X1), ar2(modArmonic_X2), ar2(modArmonic_X3)), 3),
+  AMPI_Adj_R2   = round(c(ar2(modX1), ar2(modX2), ar2(modX3)), 3),
+  Min_Adj_R2    = round(c(ar2(modMin_X1), ar2(modMin_X2), ar2(modMin_X3)), 3)
 )
+knitr::kable(ar2_table,
+             col.names = c("Indicator", "Sum","Arithmetic_Mean",  "Geometric_Mean", "Armonic_Mean","AMPI",  "Min"),
+             caption = "Adjusted R2 values from regressions of composite indices on raw indicators")
 
-knitr::kable(r2_table,
-             col.names = c("Indicator", "AMPI $R^2$", "GM $R^2$", "AM $R^2$"),
-             caption = "Comparison of indicator-level $R^2$ values across aggregation methods")
 ```
 
-### 6.3 Summary Comparison Table
 
-```{r summary-table, echo=FALSE}
-knitr::kable(
-  data.frame(
-    Feature             = c("Normalization range", "Central goalpost",
-                            "Aggregation method", "Penalizes imbalance",
-                            "Sensitive to outliers", "Undefined for zero values"),
-    AMPI                = c("[70, 130]", "Mean", 
-                            "Arithmetic mean + SD × CV", "Yes (via CV term)",
-                            "Moderate", "No"),
-    Geometric_Mean      = c("[0, 1]", "None (observed extremes)",
-                            "Geometric mean", "Yes (multiplicative)",
-                            "High", "Yes (requires ε adjustment)")
-  ),
-  col.names = c("Feature", "AMPI", "Min-Max + Geometric Mean"),
-  caption   = "Methodological comparison of the two composite index approaches"
-)
-```
-
----
-
-## 8. Correspondence Table: Raw Indicators, AMPI and Geometric Mean Rankings
+## 6.3 Correspondence Table of Rankings
 
 We build a unified ranking table that displays, for each country, both the raw indicator values and the rank assigned by each composite index. This allows a direct visual audit of how normalization and aggregation choices affect country standings.
 
 ```{r ranking-table, echo=FALSE}
-# Assemble raw indicators + both indices into one dataframe
-ranking_df <- data.frame(
-  Country     = rownames(data),  # adjust if your country identifier is a column
-  Income      = data$income,
-  Education   = data$education,
-  Environment = data$environment,
-  AMPI        = dat_std$AMPI,
-  GM          = dat_std$GM
-)
-
-# Compute rankings (rank 1 = best performer)
-ranking_df$Rank_Income      <- rank(-ranking_df$Income,      ties.method = "min")
-ranking_df$Rank_Education   <- rank(-ranking_df$Education,   ties.method = "min")
-ranking_df$Rank_Environment <- rank(-ranking_df$Environment, ties.method = "min")
-ranking_df$Rank_AMPI        <- rank(-ranking_df$AMPI,        ties.method = "min")
-ranking_df$Rank_GM          <- rank(-ranking_df$GM,          ties.method = "min")
-
-```
-
-### 8.1 Rank Disagreement Between AMPI and Geometric Mean
-
-Countries where the two methods disagree most reveal the **sensitivity of rankings to methodological choices**. A large rank gap signals that a country's position is not robust — it depends heavily on how normalization and aggregation are specified.
-
-```{r rank-disagreement, echo=FALSE}
-ranking_df$Rank_Gap <- abs(ranking_df$Rank_AMPI - ranking_df$Rank_GM)
-
-disagreement <- ranking_df[order(-ranking_df$Rank_Gap),c(1,7:11)]
-
+ranking_df <- data.frame(apply(dat_final[,c(1:3,7:12)], 2, function(x) rank(x, ties.method = "min")))
+# we add country numbers
+ranking_df$Country <- 1:nrow(ranking_df)
+ranking_df <- ranking_df[,c(10,1:9)]
+# plot a table
 knitr::kable(
-  head(disagreement,20),
+  ranking_df,
   row.names = FALSE,
-  caption   = "Top 20Countries ranked by disagreement between AMPI and Geometric Mean index"
+  caption   = "Countries ranked by different composite indices"
 )
 ```

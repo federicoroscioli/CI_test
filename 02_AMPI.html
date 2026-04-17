@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Your Name">
-<meta name="dcterms.date" content="2026-04-16">
+<meta name="dcterms.date" content="2026-04-17">
 
 <title>AMPI: Normalization and Aggregation</title>
 <style>
@@ -25,41 +25,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -70,7 +35,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="02_AMPI_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="02_AMPI_files/libs/quarto-html/anchor.min.js"></script>
 <link href="02_AMPI_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="02_AMPI_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="02_AMPI_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="02_AMPI_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="02_AMPI_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="02_AMPI_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -132,7 +97,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 16, 2026</p>
+      <p class="date">April 17, 2026</p>
     </div>
   </div>
   
@@ -180,87 +145,37 @@ environment -0.1001204 0.0496869   1.0000000</code></pre>
 <hr>
 </section>
 </section>
-<section id="normalization-constrained-min-max-ampi-method" class="level2">
-<h2 class="anchored" data-anchor-id="normalization-constrained-min-max-ampi-method">2. Normalization: Constrained Min-Max (AMPI Method)</h2>
+<section id="normalization-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="normalization-comparison">2. Normalization Comparison</h2>
 <section id="rationale" class="level3">
 <h3 class="anchored" data-anchor-id="rationale">2.1 Rationale</h3>
 <p>Raw indicators are measured on different scales and units, making direct comparison or aggregation meaningless. We therefore normalize each indicator onto a common scale before aggregating.</p>
 </section>
-<section id="goalpost-and-range" class="level3">
-<h3 class="anchored" data-anchor-id="goalpost-and-range">2.2 Goalpost and Range</h3>
-<p>The normalization uses a <strong>constrained min-max</strong> approach where:</p>
+<section id="standardization" class="level3">
+<h3 class="anchored" data-anchor-id="standardization">2.2 Standardization</h3>
+<p>A common approach is <strong>z-score standardization</strong>, which transforms each variable to have a mean of 0 and a standard deviation of 1: <span class="math display">\[z_i = \frac{x_i - \bar{x}}{\sigma}\]</span></p>
+<p>Where:</p>
 <ul>
-<li>The <strong>goalpost</strong> (reference point) is the <strong>cross-country median</strong> of each indicator — i.e., all countries aim at reaching the median European value.</li>
-<li>The normalized score is bounded between <strong>70</strong> (worst performer) and <strong>130</strong> (best performer), yielding a symmetric range of ±30 around the central value of 100.</li>
+<li><span class="math inline">\(x_i\)</span> is the raw value for country <span class="math inline">\(i\)</span></li>
+<li><span class="math inline">\(\bar{x}\)</span> is the mean of the indicator across all countries</li>
+<li><span class="math inline">\(\sigma\)</span> is the standard deviation of the indicator across all countries This method centers the data around zero and rescales it based on variability, but it does not set a fixed range or reference point for interpretation.</li>
 </ul>
 </section>
-<section id="formula" class="level3">
-<h3 class="anchored" data-anchor-id="formula">Formula</h3>
-<p>For each indicator <span class="math inline">\(x\)</span>, the normalized score <span class="math inline">\(z\)</span> is:</p>
-<p><span class="math display">\[z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}\]</span></p>
-<p>Where:</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Symbol</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(x_i\)</span></td>
-<td>Raw value for country <span class="math inline">\(i\)</span></td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(\tilde{x}\)</span></td>
-<td>Median of the indicator across all countries</td>
-</tr>
-<tr class="odd">
-<td><span class="math inline">\(x_{\max}\)</span></td>
-<td>Maximum observed value</td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(x_{\min}\)</span></td>
-<td>Minimum observed value</td>
-</tr>
-<tr class="odd">
-<td><span class="math inline">\(70\)</span></td>
-<td>Floor score (worst performer)</td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(130\)</span></td>
-<td>Ceiling score (best performer)</td>
-</tr>
-</tbody>
-</table>
+<section id="min-max-normalization" class="level3">
+<h3 class="anchored" data-anchor-id="min-max-normalization">2.3 Min-Max Normalization</h3>
+<p>Another common method is <strong>min-max normalization</strong>, which rescales the data to a fixed range, typically [0, 1]: <span class="math display">\[z_i = \frac{x_i - x_{\min}}{x_{\max} - x_{\min}}\]</span> Where: - <span class="math inline">\(x_i\)</span> is the raw value for country <span class="math inline">\(i\)</span> - <span class="math inline">\(x_{\min}\)</span> is the minimum observed value of the indicator across all countries - <span class="math inline">\(x_{\max}\)</span> is the maximum observed value of the indicator across all countries This method preserves the relative position of each country within the observed range but can be sensitive to outliers and does not set a meaningful reference point for performance.</p>
+</section>
+<section id="ampi-normalization-constrained-min-max-with-goalpost" class="level3">
+<h3 class="anchored" data-anchor-id="ampi-normalization-constrained-min-max-with-goalpost">2.4 AMPI Normalization: Constrained Min-Max with Goalpost</h3>
+<p>The normalization uses a <strong>constrained min-max</strong> approach where: - The <strong>goalpost</strong> (reference point) is the <strong>cross-country median</strong> of each indicator — i.e., all countries aim at reaching the median European value. - The normalized score is bounded between <strong>70</strong> (worst performer) and <strong>130</strong> (best performer), yielding a symmetric range of ±30 around the central value of 100.</p>
+<p>For each indicator <span class="math inline">\(x\)</span>, the normalized score <span class="math inline">\(z\)</span> is: <span class="math display">\[z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}\]</span></p>
+<p>Where: - <span class="math inline">\(x_i\)</span> | Raw value for country <span class="math inline">\(i\)</span> - <span class="math inline">\(\tilde{x}\)</span> | Median of the indicator across all countries - <span class="math inline">\(x_{\max}\)</span> | Maximum observed value - <span class="math inline">\(x_{\min}\)</span> | Minimum observed value - <span class="math inline">\(70\)</span> | Floor score (worst performer) - <span class="math inline">\(130\)</span> | Ceiling score (best performer)</p>
 <p>The multiplier <span class="math inline">\(60\)</span> reflects the total range <span class="math inline">\([70, 130]\)</span>, so that deviations from the median are rescaled proportionally within that interval.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>AMPI_norm <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">70</span> <span class="sc">+</span> (<span class="dv">60</span> <span class="sc">*</span> ((x <span class="sc">-</span> <span class="fu">median</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">max</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))))</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>dat_std <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">apply</span>(data, <span class="dv">2</span>, AMPI_norm))</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                income education environment
-income       1.0000000 0.8187393  -0.1001204
-education    0.8187393 1.0000000   0.0496869
-environment -0.1001204 0.0496869   1.0000000</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     income         education       environment    
- Min.   : 64.38   Min.   : 47.06   Min.   : 45.56  
- 1st Qu.: 68.52   1st Qu.: 66.15   1st Qu.: 62.51  
- Median : 70.00   Median : 70.00   Median : 70.00  
- Mean   : 76.94   Mean   : 72.68   Mean   : 71.48  
- 3rd Qu.: 77.64   3rd Qu.: 80.57   3rd Qu.: 78.03  
- Max.   :124.38   Max.   :107.06   Max.   :105.56  </code></pre>
-</div>
-</div>
-<p>The histograms below show the distribution of each indicator after normalization. All variables now share the same <span class="math inline">\([70, 130]\)</span> scale.</p>
+</section>
+<section id="comparison-of-normalization-methods" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-of-normalization-methods">2.5 Comparison of Normalization Methods</h3>
+<p>Comparing the distributions of the normalized indicators under each method reveals how the choice of normalization affects the relative positioning of countries and the interpretability of scores. The AMPI normalization centers scores around 100 with a fixed range, while standardization centers around 0 without a fixed range, and min-max normalization rescales to [0, 1] based on observed extremes.</p>
+<p>Each method has different implications for how we interpret the scores and how sensitive they are to outliers or the distribution of the raw data. The AMPI method, by using a median goalpost and a fixed range, emphasizes relative performance against a central benchmark while allowing for a clear interpretation of scores as “above” or “below” the median. The standardization method emphasizes deviations from the mean in terms of standard deviations, while the min-max method emphasizes relative position within the observed range.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -270,461 +185,585 @@ environment -0.1001204 0.0496869   1.0000000</code></pre>
 </div>
 </div>
 </div>
-<hr>
-</section>
-</section>
-<section id="coefficient-of-variation-before-and-after-normalization" class="level2">
-<h2 class="anchored" data-anchor-id="coefficient-of-variation-before-and-after-normalization">3. Coefficient of Variation: Before and After Normalization</h2>
-<p>The <strong>Coefficient of Variation (CV)</strong> measures relative dispersion as the ratio of the standard deviation to the mean:</p>
-<p><span class="math display">\[CV = \frac{\sigma}{\bar{x}}\]</span></p>
+<p>The <strong>Coefficient of Variation (CV)</strong> measures relative dispersion as the ratio of the standard deviation to the mean: <span class="math display">\[CV = \frac{\sigma}{\bar{x}}\]</span></p>
 <p>Comparing CVs before and after normalization helps verify that the transformation preserves the relative variability structure across indicators.</p>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>CV before normalization:</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     income   education environment 
-  0.8486576   0.5916558   0.2000079 </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-CV after normalization:</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     income   education environment 
-  0.1842118   0.1744735   0.2006366 </code></pre>
-</div>
-</div>
-<hr>
-</section>
-<section id="aggregation-the-ampi-index" class="level2">
-<h2 class="anchored" data-anchor-id="aggregation-the-ampi-index">4. Aggregation: The AMPI Index</h2>
-<section id="formula-1" class="level3">
-<h3 class="anchored" data-anchor-id="formula-1">Formula</h3>
-<p>The <strong>AMPI (Adjusted Mean Performance Index)</strong> aggregates the normalized indicators for each country using:</p>
-<p><span class="math display">\[\text{AMPI}_i = \bar{z}_i - \sigma_i \cdot CV_i\]</span></p>
-<p>Where all quantities are computed <strong>row-wise</strong> (i.e., across indicators for each country <span class="math inline">\(i\)</span>):</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Comparison of Coefficient of Variation across normalization methods</caption>
 <thead>
 <tr class="header">
-<th>Symbol</th>
-<th>Meaning</th>
+<th style="text-align: left;">Indicator</th>
+<th style="text-align: right;">Raw CV</th>
+<th style="text-align: right;">Standardization CV</th>
+<th style="text-align: right;">Min-Max CV</th>
+<th style="text-align: right;">AMPI CV</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(\bar{z}_i\)</span></td>
-<td>Mean of normalized scores across indicators</td>
+<td style="text-align: left;">income</td>
+<td style="text-align: right;">0.849</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">1.128</td>
+<td style="text-align: right;">0.184</td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(\sigma_i\)</span></td>
-<td>Standard deviation of normalized scores across indicators</td>
+<td style="text-align: left;">education</td>
+<td style="text-align: right;">0.592</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.495</td>
+<td style="text-align: right;">0.174</td>
 </tr>
 <tr class="odd">
-<td><span class="math inline">\(CV_i\)</span></td>
-<td>Coefficient of variation of normalized scores across indicators</td>
+<td style="text-align: left;">environment</td>
+<td style="text-align: right;">0.200</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0.553</td>
+<td style="text-align: right;">0.201</td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="interpretation" class="level3">
-<h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
-<p>The additive correction term <span class="math inline">\(\sigma_i \cdot CV_i\)</span> <strong>rewards countries that perform consistently well</strong> across all indicators. A country with high average scores <em>and</em> low relative dispersion will receive a smaller penalty than one with an equivalent mean but highly uneven performance across dimensions.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dat_std<span class="sc">$</span>AMPI <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(dat_std) <span class="sc">-</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">apply</span>(dat_std, <span class="dv">1</span>, sd) <span class="sc">*</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">apply</span>(dat_std, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std<span class="sc">$</span>AMPI)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  55.17   67.37   69.85   71.86   76.82   93.84 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                income education environment      AMPI
-income       1.0000000 0.8187393  -0.1001204 0.6784532
-education    0.8187393 1.0000000   0.0496869 0.7853439
-environment -0.1001204 0.0496869   1.0000000 0.5745884
-AMPI         0.6784532 0.7853439   0.5745884 1.0000000</code></pre>
 </div>
 </div>
 <hr>
 </section>
 </section>
-<section id="comparison-method-geometric-mean-aggregation" class="level2">
-<h2 class="anchored" data-anchor-id="comparison-method-geometric-mean-aggregation">5. Comparison Method: Geometric Mean Aggregation</h2>
-<p>To benchmark the AMPI approach, we apply a standard <strong>min-max normalization</strong> followed by <strong>geometric mean aggregation</strong> — a common composite index methodology (e.g., used in the UNDP Human Development Index since 2010).</p>
-<section id="aggregation-geometric-mean" class="level3">
-<h3 class="anchored" data-anchor-id="aggregation-geometric-mean">5.2 Aggregation: Geometric Mean</h3>
-<section id="formula-2" class="level4">
-<h4 class="anchored" data-anchor-id="formula-2">Formula</h4>
-<p>The geometric mean aggregates the <span class="math inline">\(k\)</span> normalized indicators for each country <span class="math inline">\(i\)</span> as:</p>
-<p><span class="math display">\[GM_i = \left(\prod_{j=1}^{k} z_{ij}\right)^{1/k} = \sqrt[k]{z_{i1} \cdot z_{i2} \cdot \ldots \cdot z_{ik}}\]</span></p>
+<section id="comparison-of-aggregation-methods" class="level2">
+<h2 class="anchored" data-anchor-id="comparison-of-aggregation-methods">3. Comparison of Aggregation Methods</h2>
+<section id="rationale-1" class="level3">
+<h3 class="anchored" data-anchor-id="rationale-1">3.1 Rationale</h3>
+<p>After normalization, we need to aggregate the multiple indicators into a single composite index. The choice of aggregation method affects how we interpret the overall score and how sensitive it is to imbalances across dimensions. In the following section we depart from deta normalized via <strong>AMPI Constraied Min-Max</strong> and apply two different aggregation methods.</p>
 </section>
-<section id="why-the-geometric-mean" class="level4">
-<h4 class="anchored" data-anchor-id="why-the-geometric-mean">Why the Geometric Mean?</h4>
-<p>Compared to an arithmetic mean, the geometric mean <strong>penalizes imbalance</strong> across dimensions: a country with a very low score on any single indicator cannot fully compensate by excelling in others. This property — called <strong>imperfect substitutability</strong> — is often desirable in multidimensional welfare indices.</p>
-<blockquote class="blockquote">
-<p>⚠️ <strong>Note:</strong> Because min-max scores can equal exactly <strong>0</strong>, and <span class="math inline">\(\log(0)\)</span> is undefined, a small constant <span class="math inline">\(\varepsilon\)</span> is added before taking the geometric mean to avoid undefined results: <span class="math display">\[GM_i = \left(\prod_{j=1}^{k} (z_{ij} + \varepsilon)\right)^{1/k}\]</span></p>
-</blockquote>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>epsilon <span class="ot">&lt;-</span> <span class="fl">1e-6</span>  <span class="co"># small constant to avoid log(0)</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>dat_std<span class="sc">$</span>GM <span class="ot">&lt;-</span> <span class="fu">apply</span>(dat_std[,<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)], <span class="dv">1</span>, <span class="cf">function</span>(x) {</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">mean</span>(<span class="fu">log</span>(x <span class="sc">+</span> epsilon)))</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>dat_std<span class="sc">$</span>AM <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(dat_std[,<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)])</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat_std<span class="sc">$</span>GM)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  56.58   67.82   69.94   73.04   78.33   94.74 </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                income education environment      AMPI        GM        AM
-income       1.0000000 0.8187393  -0.1001204 0.6784532 0.7598139 0.7981747
-education    0.8187393 1.0000000   0.0496869 0.7853439 0.8410141 0.8630016
-environment -0.1001204 0.0496869   1.0000000 0.5745884 0.5145245 0.4678586
-AMPI         0.6784532 0.7853439   0.5745884 1.0000000 0.9837991 0.9602629
-GM           0.7598139 0.8410141   0.5145245 0.9837991 1.0000000 0.9947079
-AM           0.7981747 0.8630016   0.4678586 0.9602629 0.9947079 1.0000000</code></pre>
-</div>
-</div>
-<hr>
+<section id="additive-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="additive-aggregation">3.2 Additive Aggregation</h3>
+<p>The <strong>additive aggregation</strong> method computes the composite index as a weighted sum of the normalized indicators: <span class="math display">\[I_i = \sum_{j=1}^{k} w_j z_{ij}\]</span> Where: - <span class="math inline">\(I_i\)</span> is the composite index score for country <span class="math inline">\(i\)</span> - <span class="math inline">\(w_j\)</span> is the weight assigned to indicator <span class="math inline">\(j\)</span> (often set to 1/k for equal weighting) - <span class="math inline">\(z_{ij}\)</span> is the normalized score of country <span class="math inline">\(i\)</span> on indicator <span class="math inline">\(j\)</span> This method assumes <strong>perfect substitutability</strong> between indicators: a low score on one indicator can be fully compensated by a high score on another. It is straightforward and easy to interpret, but it may not capture the multidimensional nature of development if we want to penalize imbalances across dimensions.</p>
+</section>
+<section id="power-mean-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="power-mean-aggregation">3.3 Power-Mean Aggregation</h3>
+<p>The <strong>power-mean aggregation</strong> method generalizes the arithmetic mean by introducing a parameter <span class="math inline">\(p\)</span> that controls the degree of substitutability: <span class="math display">\[I_i = \left(\frac{1}{k} \sum_{j=1}^{k} z_{ij}^p\right)^{1/p}\]</span> Where: - <span class="math inline">\(I_i\)</span> is the composite index score for country <span class="math inline">\(i\)</span> - <span class="math inline">\(p\)</span> is the power parameter that determines the aggregation behavior - <span class="math inline">\(z_{ij}\)</span> is the normalized score of country <span class="math inline">\(i\)</span> on indicator <span class="math inline">\(j\)</span> When <span class="math inline">\(p = 1\)</span>, this reduces to the arithmetic mean (perfect substitutability). When <span class="math inline">\(p &lt; 1\)</span>, it penalizes imbalance more strongly, and when <span class="math inline">\(p &gt; 1\)</span>, it allows for more compensation between indicators. The choice of <span class="math inline">\(p\)</span> reflects normative judgments about how we value balance across dimensions. When <span class="math inline">\(p \to 0\)</span>, the power mean approaches the geometric mean, which is a common method for composite indices that penalizes imbalance.</p>
+</section>
+<section id="ampi-aggregation-arithmetic-mean-penalty" class="level3">
+<h3 class="anchored" data-anchor-id="ampi-aggregation-arithmetic-mean-penalty">3.4 AMPI Aggregation: Arithmetic Mean + Penalty</h3>
+<p>The AMPI aggregation method combines the arithmetic mean of the normalized indicators with a penalty term based on the coefficient of variation (CV) time the standard deviation (σ) to account for imbalance across dimensions: <span class="math display">\[I_i = \bar{z}_i - CV_i*\sigma\]</span> This method rewards countries that perform well on average across all indicators while penalizing those with high variability (imbalance) across dimensions. The CV term captures the relative dispersion of a country’s performance across indicators, and the σ term scales the penalty based on overall variability in the dataset.</p>
+</section>
+<section id="minimum-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="minimum-aggregation">3.5 Minimum aggregation</h3>
+<p>The <strong>minimum aggregation</strong> method computes the composite index as the minimum of the normalized indicators: <span class="math display">\[I_i = \min_{j=1}^{k} z_{ij}\]</span> Where: - <span class="math inline">\(I_i\)</span> is the composite index score for country <span class="math inline">\(i\)</span> - <span class="math inline">\(z_{ij}\)</span> is the normalized score of country <span class="math inline">\(i\)</span> on indicator <span class="math inline">\(j\)</span> This method assumes <strong>no substitutability</strong> between indicators: a low score on any one indicator determines the overall score. It emphasizes the importance of balanced performance across all dimensions, but it can be overly sensitive to outliers and may not reflect overall performance if one indicator is an extreme outlier.</p>
 </section>
 </section>
-</section>
-<section id="head-to-head-comparison-ampi-vs.-geometric-mean" class="level2">
-<h2 class="anchored" data-anchor-id="head-to-head-comparison-ampi-vs.-geometric-mean">6. Head-to-Head Comparison: AMPI vs.&nbsp;Geometric Mean</h2>
-<section id="correlation-between-the-two-indices" class="level3">
-<h3 class="anchored" data-anchor-id="correlation-between-the-two-indices">6.1 Correlation Between the Two Indices</h3>
-<p>A high correlation between AMPI and GM would suggest the two methods rank countries similarly despite their different normalization and aggregation choices.</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>          AMPI        GM        AM
-AMPI 1.0000000 0.9837991 0.9602629
-GM   0.9837991 1.0000000 0.9947079
-AM   0.9602629 0.9947079 1.0000000</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="02_AMPI_files/figure-html/index-correlation-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="regression-r2-comparison-table" class="level3">
-<h3 class="anchored" data-anchor-id="regression-r2-comparison-table">6.2 Regression <span class="math inline">\(R^2\)</span> Comparison Table</h3>
-<p>We compare how strongly each indicator predicts the composite index under each method:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>modX1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>modX2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>modX3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AMPI <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>modGM_X1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>modGM_X2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>modGM_X3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(GM <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>modAM_X1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AM <span class="sc">~</span> income,      <span class="at">data =</span> dat_std)</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>modAM_X2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AM <span class="sc">~</span> education,   <span class="at">data =</span> dat_std)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>modAM_X3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(AM <span class="sc">~</span> environment, <span class="at">data =</span> dat_std)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<section id="head-to-head-comparison-of-the-different-composite-indices" class="level2">
+<h2 class="anchored" data-anchor-id="head-to-head-comparison-of-the-different-composite-indices">4. Head-to-Head Comparison of the different Composite Indices</h2>
+<section id="correlation-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="correlation-analysis">4.1 Correlation analysis</h3>
+<p>The correlation matrix below shows the pairwise correlations between the AMPI, the geometric mean, the armonic mean, the arithmetic mean and the summation and minimum indices. A high correlation indicates that the two methods yield similar rankings of countries, while a low correlation suggests that they capture different aspects of performance.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Comparison of indicator-level <span class="math inline">\(R^2\)</span> values across aggregation methods</caption>
+<caption>Correlation matrix of composite indices</caption>
+<colgroup>
+<col style="width: 20%">
+<col style="width: 7%">
+<col style="width: 20%">
+<col style="width: 19%">
+<col style="width: 16%">
+<col style="width: 7%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Sum</th>
+<th style="text-align: right;">Arithmetic_Mean</th>
+<th style="text-align: right;">Geometric_Mean</th>
+<th style="text-align: right;">Armonic_Mean</th>
+<th style="text-align: right;">AMPI</th>
+<th style="text-align: right;">Min</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Sum</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.623</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Arithmetic_Mean</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.623</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Geometric_Mean</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.657</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Armonic_Mean</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">0.692</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AMPI</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.999</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.717</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Min</td>
+<td style="text-align: right;">0.623</td>
+<td style="text-align: right;">0.623</td>
+<td style="text-align: right;">0.657</td>
+<td style="text-align: right;">0.692</td>
+<td style="text-align: right;">0.717</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="regression-adjusted-r2-comparison-table" class="level3">
+<h3 class="anchored" data-anchor-id="regression-adjusted-r2-comparison-table">6.2 Regression <span class="math inline">\(Adjusted R^2\)</span> Comparison Table</h3>
+<p>We compare how strongly each indicator predicts the composite index under each method using simple linear regressions. The <span class="math inline">\(Adjusted R^2\)</span> values indicate the proportion of variance in the composite index explained by each indicator, allowing us to assess which indicators are most influential under each aggregation method.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Adjusted R2 values from regressions of composite indices on raw indicators</caption>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 8%">
+<col style="width: 21%">
+<col style="width: 20%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 8%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Indicator</th>
-<th style="text-align: right;">AMPI <span class="math inline">\(R^2\)</span></th>
-<th style="text-align: right;">GM <span class="math inline">\(R^2\)</span></th>
-<th style="text-align: right;">AM <span class="math inline">\(R^2\)</span></th>
+<th style="text-align: right;">Sum</th>
+<th style="text-align: right;">Arithmetic_Mean</th>
+<th style="text-align: right;">Geometric_Mean</th>
+<th style="text-align: right;">Armonic_Mean</th>
+<th style="text-align: right;">AMPI</th>
+<th style="text-align: right;">Min</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Income</td>
-<td style="text-align: right;">0.460</td>
-<td style="text-align: right;">0.577</td>
 <td style="text-align: right;">0.637</td>
+<td style="text-align: right;">0.637</td>
+<td style="text-align: right;">0.620</td>
+<td style="text-align: right;">0.597</td>
+<td style="text-align: right;">0.584</td>
+<td style="text-align: right;">0.076</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Education</td>
-<td style="text-align: right;">0.617</td>
-<td style="text-align: right;">0.707</td>
-<td style="text-align: right;">0.745</td>
+<td style="text-align: right;">0.760</td>
+<td style="text-align: right;">0.760</td>
+<td style="text-align: right;">0.751</td>
+<td style="text-align: right;">0.735</td>
+<td style="text-align: right;">0.726</td>
+<td style="text-align: right;">0.176</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Environment</td>
-<td style="text-align: right;">0.330</td>
-<td style="text-align: right;">0.265</td>
-<td style="text-align: right;">0.219</td>
+<td style="text-align: right;">0.167</td>
+<td style="text-align: right;">0.167</td>
+<td style="text-align: right;">0.179</td>
+<td style="text-align: right;">0.194</td>
+<td style="text-align: right;">0.198</td>
+<td style="text-align: right;">0.260</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="summary-comparison-table" class="level3">
-<h3 class="anchored" data-anchor-id="summary-comparison-table">6.3 Summary Comparison Table</h3>
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<caption>Methodological comparison of the two composite index approaches</caption>
-<colgroup>
-<col style="width: 32%">
-<col style="width: 32%">
-<col style="width: 35%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Feature</th>
-<th style="text-align: left;">AMPI</th>
-<th style="text-align: left;">Min-Max + Geometric Mean</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Normalization range</td>
-<td style="text-align: left;">[70, 130]</td>
-<td style="text-align: left;">[0, 1]</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Central goalpost</td>
-<td style="text-align: left;">Mean</td>
-<td style="text-align: left;">None (observed extremes)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Aggregation method</td>
-<td style="text-align: left;">Arithmetic mean + SD × CV</td>
-<td style="text-align: left;">Geometric mean</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Penalizes imbalance</td>
-<td style="text-align: left;">Yes (via CV term)</td>
-<td style="text-align: left;">Yes (multiplicative)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Sensitive to outliers</td>
-<td style="text-align: left;">Moderate</td>
-<td style="text-align: left;">High</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Undefined for zero values</td>
-<td style="text-align: left;">No</td>
-<td style="text-align: left;">Yes (requires ε adjustment)</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<hr>
 </section>
-</section>
-<section id="correspondence-table-raw-indicators-ampi-and-geometric-mean-rankings" class="level2">
-<h2 class="anchored" data-anchor-id="correspondence-table-raw-indicators-ampi-and-geometric-mean-rankings">8. Correspondence Table: Raw Indicators, AMPI and Geometric Mean Rankings</h2>
+<section id="correspondence-table-of-rankings" class="level2">
+<h2 class="anchored" data-anchor-id="correspondence-table-of-rankings">6.3 Correspondence Table of Rankings</h2>
 <p>We build a unified ranking table that displays, for each country, both the raw indicator values and the rank assigned by each composite index. This allows a direct visual audit of how normalization and aggregation choices affect country standings.</p>
-<section id="rank-disagreement-between-ampi-and-geometric-mean" class="level3">
-<h3 class="anchored" data-anchor-id="rank-disagreement-between-ampi-and-geometric-mean">8.1 Rank Disagreement Between AMPI and Geometric Mean</h3>
-<p>Countries where the two methods disagree most reveal the <strong>sensitivity of rankings to methodological choices</strong>. A large rank gap signals that a country’s position is not robust — it depends heavily on how normalization and aggregation are specified.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Top 20Countries ranked by disagreement between AMPI and Geometric Mean index</caption>
+<caption>Countries ranked by different composite indices</caption>
 <colgroup>
-<col style="width: 11%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 10%">
+<col style="width: 12%">
+<col style="width: 4%">
+<col style="width: 13%">
+<col style="width: 15%">
 <col style="width: 17%">
-<col style="width: 21%">
-<col style="width: 24%">
-<col style="width: 14%">
-<col style="width: 11%">
+<col style="width: 5%">
+<col style="width: 4%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Country</th>
-<th style="text-align: right;">Rank_Income</th>
-<th style="text-align: right;">Rank_Education</th>
-<th style="text-align: right;">Rank_Environment</th>
-<th style="text-align: right;">Rank_AMPI</th>
-<th style="text-align: right;">Rank_GM</th>
+<th style="text-align: right;">Country</th>
+<th style="text-align: right;">income</th>
+<th style="text-align: right;">education</th>
+<th style="text-align: right;">environment</th>
+<th style="text-align: right;">Sum</th>
+<th style="text-align: right;">Armonic_Mean</th>
+<th style="text-align: right;">Geometric_Mean</th>
+<th style="text-align: right;">Arithmetic_Mean</th>
+<th style="text-align: right;">AMPI</th>
+<th style="text-align: right;">Min</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">11</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">17</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">15</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">5</td>
 <td style="text-align: right;">2</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">27</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">7</td>
-<td style="text-align: right;">18</td>
-<td style="text-align: right;">15</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">21</td>
 <td style="text-align: right;">19</td>
-<td style="text-align: right;">18</td>
-<td style="text-align: right;">20</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">12</td>
-<td style="text-align: right;">24</td>
+<td style="text-align: right;">25</td>
 <td style="text-align: right;">21</td>
 <td style="text-align: right;">22</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">21</td>
 <td style="text-align: right;">22</td>
 <td style="text-align: right;">24</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">20</td>
+<tr class="even">
 <td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr class="even">
 <td style="text-align: right;">6</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">18</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">4</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">21</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">5</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">15</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">23</td>
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">19</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
 <td style="text-align: right;">16</td>
-<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">18</td>
 <td style="text-align: right;">18</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">5</td>
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">13</td>
-<td style="text-align: right;">11</td>
-<td style="text-align: right;">12</td>
-</tr>
 <tr class="odd">
-<td style="text-align: left;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">23</td>
 <td style="text-align: right;">17</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">10</td>
-<td style="text-align: right;">22</td>
-<td style="text-align: right;">24</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
 <td style="text-align: right;">14</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">22</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">18</td>
+<td style="text-align: right;">11</td>
 <td style="text-align: right;">23</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">15</td>
-<td style="text-align: right;">20</td>
 <td style="text-align: right;">21</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">19</td>
-<td style="text-align: right;">21</td>
-<td style="text-align: right;">20</td>
-<td style="text-align: right;">4</td>
 <td style="text-align: right;">12</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">21</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
 <td style="text-align: right;">11</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">24</td>
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">13</td>
-<td style="text-align: right;">25</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">23</td>
 <td style="text-align: right;">24</td>
 <td style="text-align: right;">23</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">25</td>
-<td style="text-align: right;">19</td>
-<td style="text-align: right;">22</td>
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">17</td>
-<td style="text-align: right;">16</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">26</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">1</td>
+<td style="text-align: right;">21</td>
 <td style="text-align: right;">25</td>
+<td style="text-align: right;">24</td>
 <td style="text-align: right;">17</td>
 <td style="text-align: right;">24</td>
 <td style="text-align: right;">25</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">24</td>
 <td style="text-align: right;">25</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">2</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">3</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">6</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">4</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">26</td>
-<td style="text-align: right;">26</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">6</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">10</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">22</td>
 <td style="text-align: right;">20</td>
-<td style="text-align: right;">15</td>
-<td style="text-align: right;">15</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">19</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">8</td>
-<td style="text-align: right;">16</td>
-<td style="text-align: right;">16</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">9</td>
 <td style="text-align: right;">6</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">11</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">10</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">22</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-</section>
 </section>
 
 </main>
