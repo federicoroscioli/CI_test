@@ -1,0 +1,322 @@
+---
+title: "AMPI: Normalization and Aggregation"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(ggplot2)
+library(reshape2)
+library(COINr)
+```
+
+## 1. Data Loading and Exploration
+
+We begin by loading the synthetic dataset and inspecting its structure. We want to create a composite indicator which is composed by 3 pillars: **economic**, **social** and **environmental**. Each pillar is measured by two indicators as in the following table:
+| Pillar      | Indicator 1 | Indicator 2 |
+|-------------|-------------|-------------|
+| Economic    | PubDebt      | GDP         |
+| Social      | TertGrad   | FreePress      |
+| Environmental | CO2 | Renew |
+
+Metadata have stricht rules. Parent and iCode must match. Also, the entries in iMeta must include all columns in iData, except the three “special” column names: uCode, uName, and Time.
+
+```{r load-data}
+names(ASEM_iData_p)
+idata <- ASEM_iData_p[,c("uCode","Time","PubDebt", "GDP", "TertGrad", "FreePress", "CO2", "Renew")] 
+# we create some missing data
+idata$GDP[sample(1:255,10)] <- NA
+idata$FreePress[sample(1:255,10)] <- NA
+idata$Renew[sample(1:255,10)] <- NA
+names(idata)
+summary(idata)
+check_iData(idata)
+
+# build metadata
+imeta <- data.frame(
+  Level=c(1,1,1,1,1,1,2,2,2,3),
+  iCode=c("PubDebt", "GDP", "TertGrad", "FreePress", "CO2", "Renew","Economic","Social","Environmental","Index"),
+  iName=c("Public Debt", "Gross Domestic Product", "Tertiary Graduates", "Free Press", "CO2 Emissions", "Renewable Energy",
+  "Economic Pillar","Social Pillar", "Environmental Pillar","Wellbeing Index"),
+  Parent=c("Economic", "Economic", "Social", "Social", "Environmental", "Environmental","Index","Index","Index",NA),
+  Direction=c(-1, 1, 1, 1, -1, 1,1,1,1,1),
+  Weight=c(1, 1, 1, 1, 1, 1,1,1,1,1),
+  Type=c("Indicator", "Indicator", "Indicator", "Indicator", "Indicator", "Indicator","Aggregate","Aggregate","Aggregate","Aggregate")
+)
+check_iMeta(imeta)
+
+# build a new coin using example data
+coin <- new_coin(iData = idata,
+                 iMeta = imeta,
+                 split_to = "all", # only for panel data
+                 level_names = c("Indicator", "Pillar", "Index"))
+
+coin
+```
+
+Following we check for missing data.
+```{r missing}
+
+
+coin <- Impute(coin, dset = "Raw", f_i = "impute_panel")
+```
+
+### 1.1 Scope of the Analysis
+The dataset includes three indicators — **income**, **education**, and **environment** — measured for a set of countries. The goal is to construct a composite index that aggregates these dimensions into a single score reflecting overall performance. The index must be positive (i.e. multidimensional development) and we assume that all 3 indicators are measured in a way that higher values indicate better performance (e.g., higher income, better education outcomes, cleaner environment).
+
+---
+
+## 2. Normalization Comparison
+
+### 2.1 Rationale
+
+Raw indicators are measured on different scales and units, making direct comparison or aggregation meaningless. We therefore normalize each indicator onto a common scale before aggregating.
+
+### 2.2 Standardization
+A common approach is **z-score standardization**, which transforms each variable to have a mean of 0 and a standard deviation of 1:
+$$z_i = \frac{x_i - \bar{x}}{\sigma}$$
+
+Where:
+
+- $x_i$ is the raw value for country $i$
+- $\bar{x}$ is the mean of the indicator across all countries
+- $\sigma$ is the standard deviation of the indicator across all countries
+This method centers the data around zero and rescales it based on variability, but it does not set a fixed range or reference point for interpretation.
+
+```{r std, echo=FALSE}
+dat_std <- as.data.frame(scale(data)+10)
+
+```
+
+### 2.3 Min-Max Normalization
+Another common method is **min-max normalization**, which rescales the data to a fixed range, typically [0, 1]:
+$$z_i = \frac{x_i - x_{\min}}{x_{\max} - x_{\min}}$$
+Where:
+- $x_i$ is the raw value for country $i$
+- $x_{\min}$ is the minimum observed value of the indicator across all countries
+- $x_{\max}$ is the maximum observed value of the indicator across all countries
+This method preserves the relative position of each country within the observed range but can be sensitive to outliers and does not set a meaningful reference point for performance.
+
+```{r minmax, echo=FALSE}
+minmax <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+dat_mm <- as.data.frame(apply(data, 2, minmax))
+
+```
+
+### 2.4 AMPI Normalization: Constrained Min-Max with Goalpost
+The normalization uses a **constrained min-max** approach where:
+- The **goalpost** (reference point) is the **cross-country median** of each indicator — i.e., all countries aim at reaching the median European value.
+- The normalized score is bounded between **70** (worst performer) and **130** (best performer), yielding a symmetric range of ±30 around the central value of 100.
+
+For each indicator $x$, the normalized score $z$ is:
+$$z_i = 70 + 60 \cdot \frac{x_i - \tilde{x}}{x_{\max} - x_{\min}}$$
+
+Where:
+- $x_i$ | Raw value for country $i$ 
+- $\tilde{x}$ | Median of the indicator across all countries 
+- $x_{\max}$ | Maximum observed value 
+- $x_{\min}$ | Minimum observed value 
+- $70$ | Floor score (worst performer) 
+- $130$ | Ceiling score (best performer) 
+
+The multiplier $60$ reflects the total range $[70, 130]$, so that deviations from the median are rescaled proportionally within that interval.
+
+```{r ampinorm, echo=FALSE}
+AMPI_norm <- function(x) {
+  70 + (60 * ((x - median(x, na.rm = TRUE)) /
+    (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))))
+}
+
+dat_ampi <- as.data.frame(apply(data, 2, AMPI_norm))
+```
+
+### 2.5 Comparison of Normalization Methods
+Comparing the distributions of the normalized indicators under each method reveals how the choice of normalization affects the relative positioning of countries and the interpretability of scores. The AMPI normalization centers scores around 100 with a fixed range, while standardization centers around 0 without a fixed range, and min-max normalization rescales to [0, 1] based on observed extremes.
+
+Each method has different implications for how we interpret the scores and how sensitive they are to outliers or the distribution of the raw data. The AMPI method, by using a median goalpost and a fixed range, emphasizes relative performance against a central benchmark while allowing for a clear interpretation of scores as "above" or "below" the median. The standardization method emphasizes deviations from the mean in terms of standard deviations, while the min-max method emphasizes relative position within the observed range.
+
+```{r plot-normalized, echo=FALSE}
+# plot using facet in ggplot the overlapped histograms of the three normalized indicators for each methodology
+dat_std_melt <- melt(dat_std, variable.name = "Indicator", value.name = "Z_Score")
+dat_mm_melt <- melt(dat_mm, variable.name = "Indicator", value.name = "Z_Score")
+dat_ampi_melt <- melt(dat_ampi, variable.name = "Indicator", value.name = "Z_Score")
+dat_std_melt$Method <- "Standardization"
+dat_mm_melt$Method <- "Min-Max"
+dat_ampi_melt$Method <- "AMPI Normalization"
+dat_all <- rbind(dat_std_melt, dat_mm_melt, dat_ampi_melt)
+ggplot(dat_all, aes(x = Z_Score, fill = Indicator)) +
+  geom_histogram(alpha = 0.5, position = "identity", bins = 30) +
+  facet_wrap(~ Method, scales = "free") +
+  labs(title = "Comparison of Normalization Methods",
+       x = "Normalized Score", y = "Frequency") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+The **Coefficient of Variation (CV)** measures relative dispersion as the ratio of the standard deviation to the mean:
+$$CV = \frac{\sigma}{\bar{x}}$$
+
+Comparing CVs before and after normalization helps verify that the transformation preserves the relative variability structure across indicators.
+
+```{r cv-comparison, echo=FALSE}
+cv_raw <- apply(data, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_std <- apply(dat_std, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_mm <- apply(dat_mm, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_ampi <- apply(dat_ampi, 2, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE))
+cv_comparison <- data.frame(
+  Indicator = names(cv_raw),
+  Raw_CV    = round(cv_raw, 3),
+  Std_CV    = round(cv_std, 3),
+  MM_CV     = round(cv_mm, 3),
+  AMPI_CV   = round(cv_ampi, 3)
+)
+knitr::kable(cv_comparison,
+             col.names = c("Indicator", "Raw CV", "Standardization CV", "Min-Max CV", "AMPI CV"),
+             caption = "Comparison of Coefficient of Variation across normalization methods",
+             row.names = FALSE)
+```
+
+---
+
+## 3. Comparison of Aggregation Methods
+
+### 3.1 Rationale
+After normalization, we need to aggregate the multiple indicators into a single composite index. The choice of aggregation method affects how we interpret the overall score and how sensitive it is to imbalances across dimensions. In the following section we depart from deta normalized via **AMPI Constraied Min-Max** and apply two different aggregation methods.
+
+### 3.2 Additive Aggregation
+The **additive aggregation** method computes the composite index as a weighted sum of the normalized indicators:
+$$I_i = \sum_{j=1}^{k} w_j z_{ij}$$
+Where:
+- $I_i$ is the composite index score for country $i$
+- $w_j$ is the weight assigned to indicator $j$ (often set to 1/k for equal weighting)
+- $z_{ij}$ is the normalized score of country $i$ on indicator $j$
+This method assumes **perfect substitutability** between indicators: a low score on one indicator can be fully compensated by a high score on another. It is straightforward and easy to interpret, but it may not capture the multidimensional nature of development if we want to penalize imbalances across dimensions.
+
+```{r sum, echo=FALSE}
+# dat_final <- cbind(data, dat_ampi)
+dat_final <- cbind(data, dat_std)
+
+dat_final$Sum <- rowSums(dat_final[,c(4:6)])
+
+```
+
+### 3.3 Power-Mean Aggregation
+The **power-mean aggregation** method generalizes the arithmetic mean by introducing a parameter $p$ that controls the degree of substitutability:
+$$I_i = \left(\frac{1}{k} \sum_{j=1}^{k} z_{ij}^p\right)^{1/p}$$
+Where:
+- $I_i$ is the composite index score for country $i$
+- $p$ is the power parameter that determines the aggregation behavior
+- $z_{ij}$ is the normalized score of country $i$ on indicator $j$
+When $p = 1$, this reduces to the arithmetic mean (perfect substitutability). When $p < 1$, it penalizes imbalance more strongly, and when $p > 1$, it allows for more compensation between indicators. The choice of $p$ reflects normative judgments about how we value balance across dimensions. When $p \to 0$, the power mean approaches the geometric mean, which is a common method for composite indices that penalizes imbalance.
+
+```{r power-mean, echo=FALSE}
+# we loop to create a composite indicator aggregated via power mean for different values of p, we can then compare the results with the additive aggregation method
+# We compare the aritmetic mean, the geometric mean, the armonic mean
+power_mean <- function(values, p) {
+  if (p == 0) {
+    # Geometric mean (limit of power mean as p → 0)
+    return(exp(mean(log(values))))
+  } else {
+    return(mean(values^p)^(1/p))
+  }
+}
+p_values <- c(-1, 0, 1)  # example values for p
+for (p in p_values) {
+  dat_final[[paste0("PowerMean_p", p)]] <- apply(dat_final[,c(4:6)], 1, function(x) power_mean(x, p))
+}
+names(dat_final)[8:10] <- c("Armonic_Mean","Geometric_Mean", "Arithmetic_Mean")
+```
+
+### 3.4 AMPI Aggregation: Arithmetic Mean + Penalty
+The AMPI aggregation method combines the arithmetic mean of the normalized indicators with a penalty term based on the coefficient of variation (CV) time the standard deviation (σ) to account for imbalance across dimensions:
+$$I_i = \bar{z}_i - CV_i*\sigma$$
+This method rewards countries that perform well on average across all indicators while penalizing those with high variability (imbalance) across dimensions. The CV term captures the relative dispersion of a country's performance across indicators, and the σ term scales the penalty based on overall variability in the dataset.
+```{r ampi-aggregation, echo=FALSE}
+dat_final$AMPI <- rowMeans(dat_final[,c(4:6)]) - (apply(dat_final[,c(4:6)], 1, function(x) sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)) * apply(dat_final[,c(4:6)], 1, sd, na.rm = TRUE))
+```
+
+### 3.5 Minimum aggregation
+The **minimum aggregation** method computes the composite index as the minimum of the normalized indicators:
+$$I_i = \min_{j=1}^{k} z_{ij}$$
+Where:
+- $I_i$ is the composite index score for country $i$
+- $z_{ij}$ is the normalized score of country $i$ on indicator $j$
+This method assumes **no substitutability** between indicators: a low score on any one indicator determines the overall score. It emphasizes the importance of balanced performance across all dimensions, but it can be overly sensitive to outliers and may not reflect overall performance if one indicator is an extreme outlier.
+```{r min-aggregation, echo=FALSE}
+dat_final$Min <- apply(dat_final[,c(4:6)], 1, min, na.rm = TRUE)
+```
+
+## 4. Head-to-Head Comparison of the different Composite Indices
+
+### 4.1 Correlation analysis
+The correlation matrix below shows the pairwise correlations between the AMPI, the geometric mean, the armonic mean, the arithmetic mean and the summation and minimum indices. A high correlation indicates that the two methods yield similar rankings of countries, while a low correlation suggests that they capture different aspects of performance.
+
+```{r index-correlation, echo=FALSE}
+index_correlation <- cor(dat_final[,c("Sum","Arithmetic_Mean",  "Geometric_Mean", "Armonic_Mean","AMPI",  "Min")], use = "pairwise.complete.obs")
+knitr::kable(round(index_correlation, 3),
+             caption = "Correlation matrix of composite indices")
+```
+
+
+### 6.2 Regression $Adjusted R^2$ Comparison Table
+
+We compare how strongly each indicator predicts the composite index under each method using simple linear regressions. The $Adjusted R^2$ values indicate the proportion of variance in the composite index explained by each indicator, allowing us to assess which indicators are most influential under each aggregation method.
+```{r regressions, echo=FALSE}
+modX1 <- lm(AMPI ~ income.1, data = dat_final)
+modX2 <- lm(AMPI ~ education.1, data = dat_final)
+modX3 <- lm(AMPI ~ environment.1, data = dat_final)
+modGM_X1 <- lm(Geometric_Mean ~ income.1, data = dat_final)
+modGM_X2 <- lm(Geometric_Mean ~ education.1, data = dat_final)
+modGM_X3 <- lm(Geometric_Mean ~ environment.1, data = dat_final)
+modAM_X1 <- lm(Arithmetic_Mean ~ income.1, data = dat_final)
+modAM_X2 <- lm(Arithmetic_Mean ~ education.1, data = dat_final)
+modAM_X3 <- lm(Arithmetic_Mean ~ environment.1, data = dat_final)
+modMin_X1 <- lm(Min ~ income.1, data = dat_final)
+modMin_X2 <- lm(Min ~ education.1, data = dat_final)
+modMin_X3 <- lm(Min ~ environment.1, data = dat_final)
+modSum_X1 <- lm(Sum ~ income.1, data = dat_final)
+modSum_X2 <- lm(Sum ~ education.1, data = dat_final)
+modSum_X3 <- lm(Sum ~ environment.1, data = dat_final)
+modArmonic_X1 <- lm(Armonic_Mean ~ income.1, data = dat_final)
+modArmonic_X2 <- lm(Armonic_Mean ~ education.1, data = dat_final)
+modArmonic_X3 <- lm(Armonic_Mean ~ environment.1, data = dat_final)
+
+# estract the adjusted R^2 values and create a comparison table
+ar2 <- function(model) summary(model)$adj.r.squared
+
+ar2_table <- data.frame(
+  Indicator = c("Income", "Education", "Environment"),
+  Sum_Adj_R2    = round(c(ar2(modSum_X1), ar2(modSum_X2), ar2(modSum_X3)), 3),
+  AM_Adj_R2     = round(c(ar2(modAM_X1), ar2(modAM_X2), ar2(modAM_X3)), 3),
+  GM_Adj_R2     = round(c(ar2(modGM_X1), ar2(modGM_X2), ar2(modGM_X3)), 3),
+  Armonic_Adj_R2= round(c(ar2(modArmonic_X1), ar2(modArmonic_X2), ar2(modArmonic_X3)), 3),
+  AMPI_Adj_R2   = round(c(ar2(modX1), ar2(modX2), ar2(modX3)), 3),
+  Min_Adj_R2    = round(c(ar2(modMin_X1), ar2(modMin_X2), ar2(modMin_X3)), 3)
+)
+knitr::kable(ar2_table,
+             col.names = c("Indicator", "Sum","Arithmetic_Mean",  "Geometric_Mean", "Armonic_Mean","AMPI",  "Min"),
+             caption = "Adjusted R2 values from regressions of composite indices on raw indicators")
+
+```
+
+
+## 6.3 Correspondence Table of Rankings
+
+We build a unified ranking table that displays, for each country, both the raw indicator values and the rank assigned by each composite index. This allows a direct visual audit of how normalization and aggregation choices affect country standings.
+
+```{r ranking-table, echo=FALSE}
+ranking_df <- data.frame(apply(dat_final[,c(1:3,7:12)], 2, function(x) rank(x, ties.method = "min")))
+# we add country numbers
+ranking_df$Country <- 1:nrow(ranking_df)
+ranking_df <- ranking_df[,c(10,1:9)]
+# plot a table
+knitr::kable(
+  ranking_df,
+  row.names = FALSE,
+  caption   = "Countries ranked by different composite indices"
+)
+```
